@@ -1,5 +1,5 @@
 #!/bin/bash
-export NAMESPACE=beyond5g-tsp
+export NAMESPACE=`oc project -q`
 helm uninstall -n $NAMESPACE $(helm list -aq -n $NAMESPACE)
 sleep 3
 ./deploycn.bash
