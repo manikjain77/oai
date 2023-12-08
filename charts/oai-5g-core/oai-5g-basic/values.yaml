@@ -116,7 +116,7 @@ oai-upf:
     defaultGateway: ""
     n3Interface:
       create: true
-      Ipadd: "192.168.25.13"
+      Ipadd: "192.168.25.23"
       Netmask: "22"
       # #name inside the pod is hardcoded right now
       name: "n3"
@@ -128,7 +128,7 @@ oai-upf:
     ## For n4 it is better to re-use eth0 interface inside the pod (primary CNI of Kubernetes)
     n4Interface:
       create: false
-      Ipadd: "192.168.24.12"
+      Ipadd: "192.168.24.22"
       Netmask: "24"
       # #name inside the pod is hardcoded right now
       # name: "n4"
@@ -139,7 +139,7 @@ oai-upf:
       hostInterface: "bond0"
     n6Interface:
       create: false
-      Ipadd: "192.168.22.12"
+      Ipadd: "192.168.22.22"
       # #name inside the pod is hardcoded right now
       # name: "n6"
       Netmask: "24"
@@ -184,7 +184,7 @@ oai-smf:
     defaultGateway: ""
     n4Interface:
       create: false
-      Ipadd: "192.168.24.13"
+      Ipadd: "192.168.24.23"
       Netmask: "24"
       ## If you do not have a gateway leave the field empty
       Gateway: ""
