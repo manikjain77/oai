@@ -114,7 +114,7 @@ oai-5g-basic/
 0 directories, 2 files
 ```
 
-In the `values.yaml` file we have put only those configuration parameters which we think are really necessary and they should be changed based on PLMN, DNN and sim card information. In case you want to change some other parameters we suggest you go in the helm charts of the network function and do the change there. 
+In the `values.yaml` file we have put only those configuration parameters which we think are really necessary and they should be changed based on PLMN, DNN and sim card information. In case you want to change some other parameters we suggest you go in the helm charts of the network function and do the change there.
 
 ### 3.2 Configuring RAN Helm Charts
 
@@ -147,14 +147,14 @@ All the configurable parameters for a particular commit/release are mentioned in
 
 All the network function related configurable parameters are in the sections `config` of the `values.yaml`. To understand the usage and description of each network function configuration parameter refer their [wiki page](https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-amf/-/wikis/home).
 
-Create a namespace where the helm-charts will be deployed, in our environment we deploy them in `beyond5g-tsp` namespace. To create a namespace use the below command on your cluster, 
+Create a namespace where the helm-charts will be deployed, in our environment we deploy them in `beyond5g-ercn` namespace. To create a namespace use the below command on your cluster, 
 
 
 ```console
 # needs a user which has the right to create namespaces
-$: kubectl create ns beyond5g-tsp
+$: kubectl create ns beyond5g-ercn
 or 
-$: oc new-project beyond5g-tsp
+$: oc new-project beyond5g-ercn
 ```
 
 **NOTE**: Any changes done in the parent chart (Mini, basic, slicing scenario helm charts) will overwrite the sub charts. 
@@ -279,7 +279,7 @@ For CI purposes please ignore this line (configure the charts for openshift, ima
 $: cp values.yaml values.yml.tmp
 $: sed -i 's/docker.io\/oaisoftwarealliance\///g' oai-5g-basic/values.yaml
 $: sed -i 's/- name: "regcred"//g' oai-5g-basic/values.yaml
-$: oc project beyond5g-tsp
+$: oc project beyond5g-ercn
 ```
 -->
 
@@ -303,9 +303,9 @@ Once the configuration is finished the charts can be deployed with a user who ha
 3. Create multus binds (optional only if multus is used)
 
 ``` shell
-$: helm spray --namespace beyond5g-tsp .
+$: helm spray --namespace beyond5g-ercn .
 [spray] processing chart from local file or directory "."...
-[spray] deploying solution chart "." in namespace "beyond5g-tsp"
+[spray] deploying solution chart "." in namespace "beyond5g-ercn"
 [spray] processing sub-charts of weight 0
 [spray]   > upgrading release "mysql": deploying first revision (appVersion 8.0.31)...
 [spray]     o release: "mysql" upgraded
@@ -337,10 +337,10 @@ $: helm spray --namespace beyond5g-tsp .
 [spray]     o release: "oai-smf" upgraded
 [spray]   > waiting for liveness and readiness...
 [spray] upgrade of solution chart "." completed in 1m9s
-$: export AMF_POD_NAME=$(kubectl get pods --namespace beyond5g-tsp -l "app.kubernetes.io/name=oai-amf" -o jsonpath="{.items[0].metadata.name}")
-$: export SMF_POD_NAME=$(kubectl get pods --namespace beyond5g-tsp -l "app.kubernetes.io/name=oai-smf" -o jsonpath="{.items[0].metadata.name}")
-$: export SPGWU_TINY_POD_NAME=$(kubectl get pods --namespace beyond5g-tsp -l "app.kubernetes.io/name=oai-upf" -o jsonpath="{.items[0].metadata.name}")
-$: export AMF_eth0_POD_IP=$(kubectl get pods --namespace beyond5g-tsp -l "app.kubernetes.io/name=oai-amf" -o jsonpath="{.items[0].status.podIP}")
+$: export AMF_POD_NAME=$(kubectl get pods --namespace beyond5g-ercn -l "app.kubernetes.io/name=oai-amf" -o jsonpath="{.items[0].metadata.name}")
+$: export SMF_POD_NAME=$(kubectl get pods --namespace beyond5g-ercn -l "app.kubernetes.io/name=oai-smf" -o jsonpath="{.items[0].metadata.name}")
+$: export SPGWU_TINY_POD_NAME=$(kubectl get pods --namespace beyond5g-ercn -l "app.kubernetes.io/name=oai-upf" -o jsonpath="{.items[0].metadata.name}")
+$: export AMF_eth0_POD_IP=$(kubectl get pods --namespace beyond5g-ercn -l "app.kubernetes.io/name=oai-amf" -o jsonpath="{.items[0].status.podIP}")
 
 ```
 
@@ -360,8 +360,8 @@ $: [[ $SPGWU_log ]] && [[ $SPGWU_log2 ]]
 -->
 
 ```console
-$: kubectl logs -c spgwu $SPGWU_TINY_POD_NAME -n beyond5g-tsp | grep 'Received SX HEARTBEAT REQUEST' | wc -l
-$: kubectl logs -c smf $SMF_POD_NAME -n beyond5g-tsp | grep 'handle_receive(16 bytes)' | wc -l
+$: kubectl logs -c spgwu $SPGWU_TINY_POD_NAME -n beyond5g-ercn | grep 'Received SX HEARTBEAT REQUEST' | wc -l
+$: kubectl logs -c smf $SMF_POD_NAME -n beyond5g-ercn | grep 'handle_receive(16 bytes)' | wc -l
 ```
 
 If the value is more than 1 for both then it will verify that `smf` and `upf` have successfully registered to `nrf` and there is a PFCP session. 
@@ -435,13 +435,13 @@ $: cd openshift/
 $: ./deployran.bash
 NAME: cucp
 LAST DEPLOYED: Fri Dec  8 15:59:24 2023
-NAMESPACE: beyond5g-tsp
+NAMESPACE: beyond5g-ercn
 STATUS: deployed
 REVISION: 1
 TEST SUITE: None
 NOTES:
 1. Get the application name by running these commands:
-  export GNB__CU_CP_POD_NAME=$(kubectl get pods --namespace beyond5g-tsp -l "app.kubernetes.io/name=oai-gnb-cu-cp,app.kubernetes.io/instance=cucp" -o jsonpath="{.items[0].metadata.name}")
+  export GNB__CU_CP_POD_NAME=$(kubectl get pods --namespace beyond5g-ercn -l "app.kubernetes.io/name=oai-gnb-cu-cp,app.kubernetes.io/instance=cucp" -o jsonpath="{.items[0].metadata.name}")
 2. Dockerhub images of OpenAirInterface requires avx2 capabilities in the cpu and they are built for x86 architecture, tested on UBUNTU OS only.
 3. If you want to configure for a particular band then copy the configuration file in templates/configmap.yaml from here https://gitlab.eurecom.fr/oai/openairinterface5g/-/tree/develop/targets/PROJECTS/GENERIC-NR-5GC/CONF
 waiting for pod oai-gnb-cu-cp
@@ -451,13 +451,13 @@ CUCP=oai-gnb-cu-cp-86454578f5-w7krk
 CUCP connected to AMF!
 NAME: cuup
 LAST DEPLOYED: Fri Dec  8 15:59:32 2023
-NAMESPACE: beyond5g-tsp
+NAMESPACE: beyond5g-ercn
 STATUS: deployed
 REVISION: 1
 TEST SUITE: None
 NOTES:
 1. Get the application name by running these commands:
-  export GNB__CU_POD_NAME=$(kubectl get pods --namespace beyond5g-tsp -l "app.kubernetes.io/name=oai-gnb-cu-up,app.kubernetes.io/instance=cuup" -o jsonpath="{.items[0].metadata.name}")
+  export GNB__CU_POD_NAME=$(kubectl get pods --namespace beyond5g-ercn -l "app.kubernetes.io/name=oai-gnb-cu-up,app.kubernetes.io/instance=cuup" -o jsonpath="{.items[0].metadata.name}")
 2. Dockerhub images of OpenAirInterface requires avx2 capabilities in the cpu and they are built for x86 architecture, tested on UBUNTU OS only.
 3. If you want to configure for a particular band then copy the configuration file in templates/configmap.yaml from here https://gitlab.eurecom.fr/oai/openairinterface5g/-/tree/develop/targets/PROJECTS/GENERIC-NR-5GC/CONF
 4. For good performance make sure your underlying kernel is realtime and CPU sleep states are off
@@ -468,14 +468,14 @@ waiting for pod oai-gnb-cu-up
 CUUP=oai-gnb-cu-up-6dd687444b-fbv72
 NAME: du
 LAST DEPLOYED: Fri Dec  8 15:59:38 2023
-NAMESPACE: beyond5g-tsp
+NAMESPACE: beyond5g-ercn
 STATUS: deployed
 REVISION: 1
 TEST SUITE: None
 NOTES:
 1. Get the application name by running these commands:
-  export GNB_DU_POD_NAME=$(kubectl get pods --namespace beyond5g-tsp -l "app.kubernetes.io/name=oai-gnb-du,app.kubernetes.io/instance=du" -o jsonpath="{.items[0].metadata.name}")
-  export GNB_DU_eth0_IP=$(kubectl get pods --namespace beyond5g-tsp -l "app.kubernetes.io/name=oai-gnb-du,app.kubernetes.io/instance=du" -o jsonpath="{.items[*].status.podIP}")
+  export GNB_DU_POD_NAME=$(kubectl get pods --namespace beyond5g-ercn -l "app.kubernetes.io/name=oai-gnb-du,app.kubernetes.io/instance=du" -o jsonpath="{.items[0].metadata.name}")
+  export GNB_DU_eth0_IP=$(kubectl get pods --namespace beyond5g-ercn -l "app.kubernetes.io/name=oai-gnb-du,app.kubernetes.io/instance=du" -o jsonpath="{.items[*].status.podIP}")
 2. Dockerhub images of OpenAirInterface requires avx2 capabilities in the cpu and they are built for x86 architecture, tested on UBUNTU OS only.
 3. Note: This helm chart of OAI-gNB-DU is only tested in RF-simulator mode and is not tested with USRPs/RUs on Openshift/Kubernetes Cluster
 4. In case you want to test these charts with USRP/RU then make sure your underlying kernel is realtime and CPU sleep states are off
@@ -486,13 +486,13 @@ waiting for pod oai-gnb-du
 DU=oai-gnb-du-cb9db4876-92zqr
 NAME: ue1
 LAST DEPLOYED: Fri Dec  8 15:59:48 2023
-NAMESPACE: beyond5g-tsp
+NAMESPACE: beyond5g-ercn
 STATUS: deployed
 REVISION: 1
 TEST SUITE: None
 NOTES:
 1. Get the application name by running these commands:
-  export NR_UE_POD_NAME=$(kubectl get pods --namespace beyond5g-tsp -l "app.kubernetes.io/name=oai-nr-ue,app.kubernetes.io/instance=ue1" -o jsonpath="{.items[0].metadata.name}")
+  export NR_UE_POD_NAME=$(kubectl get pods --namespace beyond5g-ercn -l "app.kubernetes.io/name=oai-nr-ue,app.kubernetes.io/instance=ue1" -o jsonpath="{.items[0].metadata.name}")
 2. Dockerhub images of OpenAirInterface requires avx2 capabilities in the cpu and they are built for x86 architecture, tested on UBUNTU OS only.
 3. Note: This helm chart of OAI-NR-UE is only tested in RF-simulator mode not tested with hardware on Openshift/Kubernetes Cluster
 4. In case you want to test these charts with USRP then make sure your CPU sleep states are off
@@ -515,7 +515,7 @@ $: [[ $AMF_LOG ]]
 -->
 
 ```console
-$: kubectl logs -c amf $AMF_POD_NAME -n beyond5g-tsp | grep 'Sending NG_SETUP_RESPONSE Ok' 
+$: kubectl logs -c amf $AMF_POD_NAME -n beyond5g-ercn | grep 'Sending NG_SETUP_RESPONSE Ok' 
 [2022-04-22T15:42:45.370382] [AMF] [amf_n2 ] [debug] Sending NG_SETUP_RESPONSE Ok
 ```
 
@@ -524,7 +524,7 @@ $: kubectl logs -c amf $AMF_POD_NAME -n beyond5g-tsp | grep 'Sending NG_SETUP_RE
 Inside the nr-ue pod there is an extra tcdump container which can be use to perform traffic testing via iperf3 or 
 
 ``` shell
-$: kubectl exec -it -n beyond5g-tsp -c nr-ue $NR_UE_POD_NAME -- ping -I oaitun_ue1 -c4 google.fr
+$: kubectl exec -it -n beyond5g-ercn -c nr-ue $NR_UE_POD_NAME -- ping -I oaitun_ue1 -c4 google.fr
 PING google.fr (216.58.213.67) from 12.1.1.100 oaitun_ue1: 56(84) bytes of data.
 64 bytes from par21s18-in-f3.1e100.net (216.58.213.67): icmp_seq=1 ttl=117 time=27.0 ms
 64 bytes from par21s18-in-f3.1e100.net (216.58.213.67): icmp_seq=2 ttl=117 time=22.3 ms
@@ -544,7 +544,7 @@ rtt min/avg/max/mdev = 22.375/24.072/27.031/1.833 ms
 You can remove them one by one or you can use this command
 
 ``` shell
-$: helm uninstall -n beyond5g-tsp $(helm list -aq -n beyond5g-tsp)
+$: helm uninstall -n beyond5g-ercn $(helm list -aq -n beyond5g-ercn)
 
 ```
 
@@ -586,7 +586,7 @@ $: tcpdump -i any -n
 Below resource consumption is observered using Kubernetes metrics server while NR-UE was pinging to `google.fr`
 
 ```console
-$: kubectl top pods -n beyond5g-tsp
+$: kubectl top pods -n beyond5g-ercn
 NAME                                  CPU(cores)   MEMORY(bytes)   
 oai-5g-basic-mysql-5598899b67-z6nzk   5m           212Mi           
 oai-amf-57fb47bf95-slvsm              11m          9Mi             
