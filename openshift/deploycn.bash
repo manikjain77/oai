@@ -1,4 +1,5 @@
 #!/bin/bash
+NAMESPACE=`oc project -q`
 cd ../charts/oai-5g-core/oai-5g-basic && helm dependency update && helm install oai-5g-basic .
 while [[ $(kubectl get pods -l app=oai-amf -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') != "True" ]]; do echo "waiting for pod oai-amf" && sleep 1; done
 export AMF_POD_NAME=$(kubectl get pods --namespace $NAMESPACE -l "app.kubernetes.io/name=oai-amf" -o jsonpath="{.items[0].metadata.name}")
