@@ -21,6 +21,9 @@ spec:
           [{
                  "name": "{{ .Chart.Name }}-n2",
                  "interface": "n2"
+                {{- if .Values.multus.n2Interface.Mac }}
+                 ,"mac":  "{{ .Values.multus.n2Interface.Mac }}"
+                {{- end }}
                 {{- if .Values.multus.defaultGateway }}
                  ,"default-route": ["{{ .Values.multus.defaultGateway }}"]
                 {{- end }}

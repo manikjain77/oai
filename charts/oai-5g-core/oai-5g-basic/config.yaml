@@ -29,7 +29,7 @@ nfs:
       api_version: v1
       interface_name: eth0
     n2:
-      interface_name: eth0
+      interface_name: "@IF_N2@"
       port: 38412
   smf:
     host: oai-smf
@@ -47,13 +47,13 @@ nfs:
       api_version: v1
       interface_name: eth0
     n3:
-      interface_name: eth0
+      interface_name:  "@IF_N3@" 
       port: 2152
     n4:
-      interface_name: eth0
+      interface_name: "@IF_N4@" 
       port: 8805
     n6:
-      interface_name: eth0
+      interface_name: "@IF_N6@"
     n9:
       interface_name: eth0
       port: 2152
@@ -106,15 +106,15 @@ amf:
   statistics_timer_interval: 20  # in seconds
   emergency_support: false
   served_guami_list:
-    - mcc: 001
-      mnc: 01
+    - mcc: @MCC@
+      mnc: @MNC@
       amf_region_id: 01
       amf_set_id: 001
       amf_pointer: 01
   plmn_support_list:
-    - mcc: 001
-      mnc: 01
-      tac: 0x0001
+    - mcc: @MCC@
+      mnc: @MNC@
+      tac: @TAC@ ##TAC was 0x0001##
       nssai:
         - *embb_slice1
         - *embb_slice2
