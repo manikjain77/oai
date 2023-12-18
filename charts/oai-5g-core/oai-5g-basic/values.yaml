@@ -148,7 +148,7 @@ oai-upf:
     ## For n4 it is better to re-use eth0 interface inside the pod (primary CNI of Kubernetes)
     n4Interface:
       create: @MULTUS_UPF_N4@
-      Ipadd: "@IP_UPF_N4@
+      Ipadd: "@IP_UPF_N4@"
       Netmask: "@NETMASK_UPF_N4@"
       ## If you do not need a specific mac address leave the field empty
       Mac: "@MAC_UPF_N4@"
