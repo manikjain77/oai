@@ -39,7 +39,8 @@ spec:
       imagePullSecrets:
         {{ toYaml .Values.imagePullSecrets | indent 8 }}
     {{- end }}
-    {{- if .Values.global }}{{ if .Values.global.waitForNRF }}
+    {{- if .Values.global }}
+    {{ if .Values.global.waitForNRF }}
       initContainers:
         - name: init
           image: docker.io/alpine/curl:3.14
@@ -48,6 +49,7 @@ spec:
             - /bin/sh
             - -c
             - until curl --connect-timeout {{ .Values.global.timeout }} --head -X GET http://oai-nrf/nnrf-nfm/v1/nf-instances?nf-type='NRF' {{ .Values.global.http2Param }}; do echo waiting for oai-nrf; sleep 1; done
+    {{- end }}
     {{- end }}
       containers:
     {{- if .Values.includeTcpDumpContainer }}
