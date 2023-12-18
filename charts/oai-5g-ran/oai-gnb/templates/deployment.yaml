@@ -22,25 +22,49 @@ spec:
           [{
                  "name": "{{ .Chart.Name }}-n2",
                  "interface": "n2"
+                {{- if .Values.multus.n2Interface.Mac }}
+                 ,"mac":  "{{ .Values.multus.n2Interface.Mac }}"
+                {{- end }}
                 {{- if .Values.multus.defaultGateway }}
                  ,"default-route": ["{{ .Values.multus.defaultGateway }}"]
+                {{- end }}
+                {{- if .Values.multus.n2Interface.Gateway }}
+                 ,"gateway": ["{{ .Values.multus.n2Interface.Gateway }}"]
                 {{- end }}
           }
           {{- if .Values.multus.n3Interface.create }}
           ,{
                  "name": "{{ .Chart.Name }}-n3",
                  "interface": "n3"
+                {{- if .Values.multus.n3Interface.Mac }}
+                 ,"mac":  "{{ .Values.multus.n3Interface.Mac }}"
+                {{- end }}
                 {{- if .Values.multus.n3Interface.Gateway }}
-                ,"gateway": {{ .Values.multus.n3Interface.Gateway }}
+                 ,"gateway": ["{{ .Values.multus.n3Interface.Gateway }}"]
                 {{- end }}
           }
           {{- end }}
-          {{- if .Values.multus.ruInterface.create }}
+          {{- if .Values.multus.ru1Interface.create }}
           ,{
-                 "name": "{{ .Chart.Name }}-ru",
-                 "interface": "ru"
-                {{- if .Values.multus.ruInterface.Gateway }}
-                ,"gateway": {{ .Values.multus.ruInterface.Gateway }}
+                 "name": "{{ .Chart.Name }}-ru1",
+                 "interface": "ru1"
+                {{- if .Values.multus.ru1Interface.Mac }}
+                 ,"mac":  "{{ .Values.multus.ru1Interface.Mac }}"
+                {{- end }}
+                {{- if .Values.multus.ru1Interface.Gateway }}
+                 ,"gateway": ["{{ .Values.multus.ru1Interface.Gateway }}"]
+                {{- end }}
+          }
+          {{- end }}
+          {{- if .Values.multus.ru2Interface.create }}
+          ,{
+                 "name": "{{ .Chart.Name }}-ru2",
+                 "interface": "ru2"
+                {{- if .Values.multus.ru2Interface.Mac }}
+                 ,"mac":  "{{ .Values.multus.ru2Interface.Mac }}"
+                {{- end }}
+                {{- if .Values.multus.ru2Interface.Gateway }}
+                 ,"gateway": ["{{ .Values.multus.ru2Interface.Gateway }}"]
                 {{- end }}
           }
           {{- end }}
@@ -58,9 +82,13 @@ spec:
         image: "{{ .Values.nfimage.repository }}:{{ .Values.nfimage.version }}"
         imagePullPolicy: {{ .Values.nfimage.pullPolicy }}
         volumeMounts:
+        {{- if eq .Values.config.rru "aw2s" }}
+          - mountPath: /opt/oai-gnb-aw2s/etc
+        {{- else }}
           - mountPath: /opt/oai-gnb/etc
+        {{- end }}
             name: configuration
-            # subPath: gnb.conf
+            subPath: gnb.conf
           # USRP B210/B200 Mini
         {{- if eq .Values.config.usrp "b2xx"}}
           - mountPath: /dev/bus/usb/
@@ -148,14 +176,29 @@ spec:
         command:
           - /bin/sh
           - -c
+        {{- if eq .Values.config.usrp "b2xx" }}
+          - /usr/sbin/tcpdump -ni any -w /pcap/oai-gnb-n2_`date +%Y-%m-%d_%H_%M-%S-%Z`.pcap
+        {{- else}}
+          - /usr/sbin/tcpdump -ni n2 src {{ .Values.config.amfIpAddress }} or dst {{ .Values.config.amfIpAddress }} -w /pcap/oai-gnb-n2_`date +%Y-%m-%d_%H_%M-%S-%Z`.pcap
+        {{- end}}
           - /usr/sbin/tcpdump -i any -w /tmp/pcap/{{ .Chart.Name }}_`date +%Y-%m-%d_%H_%M-%S-%Z`.pcap
         {{- else}}
         command:
           - /bin/sleep
           - infinity
         {{- end}}
+        {{- if .Values.persistent.sharedvolume }}
+        volumeMounts:
+        - mountPath: "/pcap"
+          name: oai5g-pv
+        {{- end}}
       {{- end }}
       volumes:
+      {{- if .Values.persistent.sharedvolume }}
+      - name: oai5g-pv
+        persistentVolumeClaim:
+          claimName: oai5g-pvc
+      {{- end }}
       - configMap:
           name: {{ .Chart.Name }}-configmap
         name: configuration
