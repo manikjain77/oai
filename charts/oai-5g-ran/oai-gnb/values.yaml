@@ -99,8 +99,6 @@ config:
   sst: "1"  #currently only 4 standard values are allowed 1,2,3,4
   usrp: "@RRU_TYPE@"   #allowed values rfsim, b2xx, n3xx or x3xx
   amfIpAddress: "@AMF_IP_ADDRESS@" # amf ip-address or service-name oai-amf-svc
-  n2IfName: "@GNB_N2_IF_NAME@" # if multus.n2Interface.create is true then use n2
-  n3IfName: "@GNB_N3_IF_NAME@" # if multus.n3Interface.create is true then use n3 or you can only use 1 interface n2 or eth0 
 
 ## Debugging section
 start:

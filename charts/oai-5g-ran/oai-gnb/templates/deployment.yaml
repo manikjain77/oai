@@ -120,11 +120,7 @@ spec:
         {{- if .Values.start.gnb}}
         command: [ "/bin/bash", "-c" ]
         args:
-         -  N2_IP_ADDRESS=$(ip -f inet addr show $N2_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
-            N3_IP_ADDRESS=$(ip -f inet addr show $N3_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
-            sed -e s/@N2_IP_ADDRESS@/$N2_IP_ADDRESS/g
-                -e s/@N3_IP_ADDRESS@/$N3_IP_ADDRESS/g
-                -e s/@AMF_IP_ADDRESS@/$AMF_IP_ADDRESS/g
+            sed -e s/@AMF_IP_ADDRESS@/$AMF_IP_ADDRESS/g
             {{- if eq .Values.config.usrp "aw2s"}}
                 /opt/oai-gnb-aw2s/etc/gnb.conf | tee /tmp/gnb.conf;
             {{- else }}
@@ -150,10 +146,6 @@ spec:
             value: {{ .Values.config.useAdditionalOptions }}
           - name: AMF_IP_ADDRESS
             value: {{ .Values.config.amfIpAddress }}
-          - name: N2_IF_NAME
-            value: {{ .Values.config.n2IfName }}
-          - name: N3_IF_NAME
-            value: {{ .Values.config.n3IfName }}
       {{- if .Values.includeTcpDumpContainer }}
       - name: tcpdump
         image: "{{ .Values.tcpdumpimage.repository }}:{{ .Values.tcpdumpimage.version }}"
