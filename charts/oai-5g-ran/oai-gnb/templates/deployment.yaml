@@ -146,6 +146,10 @@ spec:
             value: {{ .Values.config.useAdditionalOptions }}
           - name: AMF_IP_ADDRESS
             value: {{ .Values.config.amfIpAddress }}
+          - name: N2_IF_NAME
+            value: {{ .Values.config.n2IfName }}
+          - name: N3_IF_NAME
+            value: {{ .Values.config.n3IfName }}
       {{- if .Values.includeTcpDumpContainer }}
       - name: tcpdump
         image: "{{ .Values.tcpdumpimage.repository }}:{{ .Values.tcpdumpimage.version }}"
