@@ -120,9 +120,7 @@ spec:
         {{- if .Values.start.gnb}}
         command: [ "/bin/bash", "-c" ]
         args:
-         -  AMF_IP_ADDRESS=$(getent hosts $AMF_HOST | awk '{print $1}');
-            AMF_IP_ADDRESS=$(if [[ $AMF_IP_ADDRESS ]]; then echo $AMF_IP_ADDRESS; else echo $AMF_HOST;fi);
-            N2_IP_ADDRESS=$(ip -f inet addr show $N2_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
+         -  N2_IP_ADDRESS=$(ip -f inet addr show $N2_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
             N3_IP_ADDRESS=$(ip -f inet addr show $N3_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
             sed -e s/@N2_IP_ADDRESS@/$N2_IP_ADDRESS/g
                 -e s/@N3_IP_ADDRESS@/$N3_IP_ADDRESS/g
@@ -150,8 +148,8 @@ spec:
             value: {{ .Values.config.timeZone }}
           - name: USE_ADDITIONAL_OPTIONS
             value: {{ .Values.config.useAdditionalOptions }}
-          - name: AMF_HOST
-            value: {{ .Values.config.amfhost }}
+          - name: AMF_IP_ADDRESS
+            value: {{ .Values.config.amfIpAddress }}
           - name: N2_IF_NAME
             value: {{ .Values.config.n2IfName }}
           - name: N3_IF_NAME
