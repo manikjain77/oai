@@ -82,7 +82,7 @@ spec:
         image: "{{ .Values.nfimage.repository }}:{{ .Values.nfimage.version }}"
         imagePullPolicy: {{ .Values.nfimage.pullPolicy }}
         volumeMounts:
-        {{- if eq .Values.config.rru "aw2s" }}
+        {{- if eq .Values.config.usrp "aw2s" }}
           - mountPath: /opt/oai-gnb-aw2s/etc
         {{- else }}
           - mountPath: /opt/oai-gnb/etc
