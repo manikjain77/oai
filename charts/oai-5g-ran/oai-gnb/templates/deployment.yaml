@@ -83,9 +83,9 @@ spec:
         imagePullPolicy: {{ .Values.nfimage.pullPolicy }}
         volumeMounts:
         {{- if eq .Values.config.usrp "aw2s" }}
-          - mountPath: /opt/oai-gnb-aw2s/etc
+          - mountPath: /opt/oai-gnb-aw2s/etc/gnb.conf
         {{- else }}
-          - mountPath: /opt/oai-gnb/etc
+          - mountPath: /opt/oai-gnb/etc/gnb.conf
         {{- end }}
             name: configuration
             subPath: gnb.conf
