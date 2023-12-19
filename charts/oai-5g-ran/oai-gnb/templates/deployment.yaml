@@ -123,20 +123,24 @@ spec:
             sed -e s/@AMF_IP_ADDRESS@/$AMF_IP_ADDRESS/g
             {{- if eq .Values.config.usrp "b2xx"}}
                 -e s/@GNB_IP_ADDRESS@/$GNB_IP_ADDRESS/g
-            {{- end }
-            {{- if eq .Values.config.usrp "aw2s"}}
+            {{- end }}
+            {{- if eq .Values.config.usrp "aw2s" }}
                 /opt/oai-gnb-aw2s/etc/gnb.conf | tee /tmp/gnb.conf;
             {{- else }}
                 /opt/oai-gnb/etc/gnb.conf | tee /tmp/gnb.conf;
             {{- end }}
-          {{- if eq .Values.config.usrp "b2xx"}}
+          {{- if eq .Values.config.usrp "b2xx" }}
             /opt/oai-gnb/bin/uhd_images_downloader.py -t b2xx;
           {{- else if eq .Values.config.usrp "n3xx" }}
             /opt/oai-gnb/bin/uhd_images_downloader.py -t n3xx;
           {{- else if eq .Values.config.usrp "x3xx" }}
             /opt/oai-gnb/bin/uhd_images_downloader.py -t x3xx;
           {{- end }}
+          {{- if eq .Values.config.usrp "aw2s" }}
             exec /opt/oai-gnb/bin/nr-softmodem -O /tmp/gnb.conf $USE_ADDITIONAL_OPTIONS;
+          {{- else }}
+            exec /opt/oai-gnb-aw2s/bin/nr-softmodem -O /tmp/gnb.conf $USE_ADDITIONAL_OPTIONS;
+          {{- end }}
         {{- else}}
         command:
           - /bin/sleep
@@ -149,7 +153,7 @@ spec:
             value: {{ .Values.config.useAdditionalOptions }}
           - name: AMF_IP_ADDRESS
             value: {{ .Values.config.amfIpAddress }}
-        {{- if eq .Values.config.usrp "b2xx"}}
+        {{- if eq .Values.config.usrp "b2xx" }}
           - name: GNB_IP_ADDRESS
             valueFrom: 
               fieldRef:
