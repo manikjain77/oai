@@ -4,7 +4,7 @@ kubernetesType: Vanilla  #Vanilla for community kubernetes distribution else Ope
 ## To know more about them follow this tutorial https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-fed/-/tree/master/openshift
 nfimage:  # image name either locally present or in a public/private repository
   repository: docker.io/oaisoftwarealliance/oai-amf           ## The image will be pulled from dockerhub
-  version: v2.0.0                                   #image tag, develop tag for experimental features 
+  version: develop                                   #image tag, develop tag for experimental features 
   # pullPolicy: IfNotPresent or Never or Always
   pullPolicy: IfNotPresent
 
@@ -40,7 +40,7 @@ multus:
   ## If you don't want to add a default route in your pod then leave this field empty
   defaultGateway: "172.21.7.254"
   n2Interface:
-    create: false
+    create: true
     Ipadd: "172.21.6.94"
     Netmask: "22"
     ## If you do not have a gateway leave the field empty

@@ -3,42 +3,28 @@ kind: Deployment
 metadata:
   name: {{ .Chart.Name }}
   labels:
-    {{- include "oai-cu-cp.labels" . | nindent 4 }}
+    {{- include "oai-nr-ue2.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "oai-cu-cp.selectorLabels" . | nindent 6 }}
+      {{- include "oai-nr-ue2.selectorLabels" . | nindent 6 }}
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        {{- include "oai-cu-cp.selectorLabels" . | nindent 8 }}
-        app: oai-cu-cp
-    {{- if .Values.multus.e1Interface.create }}
+        {{- include "oai-nr-ue2.selectorLabels" . | nindent 8 }}
+        app: oai-nr-ue2
       annotations:
+    {{- if .Values.multus.create }}
         k8s.v1.cni.cncf.io/networks: >-
           [{
-                 "name": "{{ .Chart.Name }}-e1",
-                 "interface": "e1"
+                 "name": "{{ .Chart.Name }}-net1"
                 {{- if .Values.multus.defaultGateway }}
                  ,"default-route": ["{{ .Values.multus.defaultGateway }}"]
                 {{- end }}
-          }
-          {{- if .Values.multus.n2Interface.create }}
-          ,{
-                 "name": "{{ .Chart.Name }}-n2",
-                 "interface": "n2"
-          }
-          {{- end }}
-          {{- if .Values.multus.f1cInterface.create }}
-          ,{
-                 "name": "{{ .Chart.Name }}-f1c",
-                 "interface": "f1c"
-          }
-          {{- end }}
-          ]
+          }]
     {{- end }}
     spec:
       securityContext:
@@ -48,11 +34,17 @@ spec:
         {{ toYaml .Values.imagePullSecrets | indent 8 }}
     {{- end }}
       containers:
-      - name: gnbcucp
+      - name: nr-ue
         image: "{{ .Values.nfimage.repository }}:{{ .Values.nfimage.version }}"
         volumeMounts:
-          - mountPath: /opt/oai-gnb/etc
+          - mountPath: /opt/oai-nr-ue/etc
             name: configuration
+            # subPath: gnb.conf
+          # USRP B210/B200 Mini
+        {{- if eq .Values.config.usrp "b2xx"}}
+          - mountPath: /dev/bus/usb/
+            name: usrp
+        {{- end}}
         {{- if .Values.resources.define}}
         resources:
           requests:
@@ -64,30 +56,23 @@ spec:
         {{- end}}
         securityContext:
            privileged: true
-        ports:
-        - containerPort: 36412
-          name: n2
-          protocol: SCTP
-        - containerPort: 38462
-          name: e1
-          protocol: SCTP
-        - containerPort: {{ .Values.config.f1cuPort}}
-          name: f1c
-          protocol: UDP
-        {{- if .Values.start.gnbcucp}}
+        {{- if .Values.start.nrue}}
         command: [ "/bin/bash", "-c" ]
         args:
-         -  AMF_IP_ADDRESS=$(getent hosts $AMF_HOST | awk '{print $1}');
-            AMF_IP_ADDRESS=$(if [[ $AMF_IP_ADDRESS ]]; then echo $AMF_IP_ADDRESS; else echo $AMF_HOST;fi)
-            N2_IP_ADDRESS=$(ip -f inet addr show $N2_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
-            F1_IP_ADDRESS=$(ip -f inet addr show $F1_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
-            CUCP_IP_ADDRESS=$(ip -f inet addr show $E1_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
-            sed -e s/@N2_IP_ADDRESS@/$N2_IP_ADDRESS/g
-                -e s/@F1_IP_ADDRESS@/$F1_IP_ADDRESS/g
-                -e s/@CUCP_IP_ADDRESS@/$CUCP_IP_ADDRESS/g
-                -e s/@AMF_IP_ADDRESS@/$AMF_IP_ADDRESS/g
-                /opt/oai-gnb/etc/cucp.conf | tee /tmp/cucp.conf;
-            /opt/oai-gnb/bin/nr-softmodem -O /tmp/cucp.conf $USE_ADDITIONAL_OPTIONS;
+          - RFSIM_IP_ADDRESS=$(getent hosts $RFSIM_HOST | awk '{print $1}');
+            RFSIM_IP_ADDRESS=$(if [[ $RFSIM_IP_ADDRESS ]]; then echo $RFSIM_IP_ADDRESS; else echo $RFSIM_HOST;fi);
+            {{- if eq .Values.config.usrp "b2xx"}}
+              /opt/oai-gnb/bin/uhd_images_downloader.py -t b2xx;
+            {{- else if eq .Values.config.usrp "n3xx" }}
+              /opt/oai-gnb/bin/uhd_images_downloader.py -t n3xx;
+            {{- else if eq .Values.config.usrp "x3xx" }}
+              /opt/oai-gnb/bin/uhd_images_downloader.py -t x3xx;
+            {{- end }}
+            {{- if eq .Values.config.usrp "rfsim" }}
+              exec /opt/oai-nr-ue/bin/nr-uesoftmodem -O /opt/oai-nr-ue/etc/nr-ue.conf $USE_ADDITIONAL_OPTIONS --rfsimulator.serveraddr $RFSIM_IP_ADDRESS;
+            {{- else}}
+              exec  /opt/oai-nr-ue/bin/nr-uesoftmodem -O /opt/oai-nr-ue/etc/nr-ue.conf $USE_ADDITIONAL_OPTIONS;
+            {{- end }}
         {{- else}}
         command:
           - /bin/sleep
@@ -96,20 +81,10 @@ spec:
         env:
           - name: TZ
             value: {{ .Values.config.timeZone }}
+          - name: RFSIM_HOST
+            value: {{ .Values.config.rfSimServer }}
           - name: USE_ADDITIONAL_OPTIONS
             value: {{ .Values.config.useAdditionalOptions }}
-          - name: OAI_GDBSTACKS
-            value: "1"
-          - name: AMF_HOST
-            value: {{ .Values.config.amfhost }}
-          - name: N2_IF_NAME
-            value: {{ .Values.config.n2IfName }}
-          - name: E1_IF_NAME
-            value: {{ .Values.config.e1IfName }}
-          - name: N3_IF_NAME
-            value: {{ .Values.config.n3IfName }}
-          - name: F1_IF_NAME
-            value: {{ .Values.config.f1IfName }}
       {{- if .Values.includeTcpDumpContainer }}
       - name: tcpdump
         image: "{{ .Values.tcpdumpimage.repository }}:{{ .Values.tcpdumpimage.version }}"
@@ -134,7 +109,7 @@ spec:
         command:
           - /bin/sh
           - -c
-          - 'mkdir -p /tmp/pcap && /usr/sbin/tcpdump -i any -w /tmp/pcap/{{ .Chart.Name }}_`date +%Y-%m-%d_%H_%M-%S-%Z`.pcap'
+          - /usr/sbin/tcpdump -i any -w /tmp/pcap/{{ .Chart.Name }}_`date +%Y-%m-%d_%H_%M-%S-%Z`.pcap
         {{- else}}
         command:
           - /bin/sleep
@@ -147,11 +122,10 @@ spec:
         name: configuration
       dnsPolicy: ClusterFirst
       restartPolicy: Always
-      schedulerName: default-scheduler
       serviceAccountName: {{ .Values.serviceAccount.name }}
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       {{- if .Values.nodeSelector}}
-      nodeSelector:
+      nodeSelector: 
          {{- toYaml .Values.nodeSelector | nindent 12 }}
       {{- end }}
       {{- if .Values.nodeName}}

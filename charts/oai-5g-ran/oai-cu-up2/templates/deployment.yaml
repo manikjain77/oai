@@ -3,19 +3,19 @@ kind: Deployment
 metadata:
   name: {{ .Chart.Name }}
   labels:
-    {{- include "oai-cu-cp.labels" . | nindent 4 }}
+    {{- include "oai-cu-up.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "oai-cu-cp.selectorLabels" . | nindent 6 }}
+      {{- include "oai-cu-up.selectorLabels" . | nindent 6 }}
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        {{- include "oai-cu-cp.selectorLabels" . | nindent 8 }}
-        app: oai-cu-cp
+        {{- include "oai-cu-up.selectorLabels" . | nindent 8 }}
+        app: oai-cu-up2
     {{- if .Values.multus.e1Interface.create }}
       annotations:
         k8s.v1.cni.cncf.io/networks: >-
@@ -26,16 +26,16 @@ spec:
                  ,"default-route": ["{{ .Values.multus.defaultGateway }}"]
                 {{- end }}
           }
-          {{- if .Values.multus.n2Interface.create }}
+          {{- if .Values.multus.n3Interface.create }}
           ,{
-                 "name": "{{ .Chart.Name }}-n2",
-                 "interface": "n2"
+                 "name": "{{ .Chart.Name }}-n3",
+                 "interface": "n3"
           }
           {{- end }}
-          {{- if .Values.multus.f1cInterface.create }}
+          {{- if .Values.multus.f1uInterface.create }}
           ,{
-                 "name": "{{ .Chart.Name }}-f1c",
-                 "interface": "f1c"
+                 "name": "{{ .Chart.Name }}-f1u",
+                 "interface": "f1u"
           }
           {{- end }}
           ]
@@ -48,10 +48,10 @@ spec:
         {{ toYaml .Values.imagePullSecrets | indent 8 }}
     {{- end }}
       containers:
-      - name: gnbcucp
+      - name: gnbcuup
         image: "{{ .Values.nfimage.repository }}:{{ .Values.nfimage.version }}"
         volumeMounts:
-          - mountPath: /opt/oai-gnb/etc
+          - mountPath: /opt/oai-gnb/etc/
             name: configuration
         {{- if .Values.resources.define}}
         resources:
@@ -65,29 +65,35 @@ spec:
         securityContext:
            privileged: true
         ports:
-        - containerPort: 36412
-          name: n2
-          protocol: SCTP
+        - containerPort: 2152
+          name: n3
+          protocol: UDP
         - containerPort: 38462
           name: e1
           protocol: SCTP
         - containerPort: {{ .Values.config.f1cuPort}}
-          name: f1c
+          name: f1u
           protocol: UDP
-        {{- if .Values.start.gnbcucp}}
+        {{- if .Values.start.gnbcuup}}
         command: [ "/bin/bash", "-c" ]
         args:
-         -  AMF_IP_ADDRESS=$(getent hosts $AMF_HOST | awk '{print $1}');
-            AMF_IP_ADDRESS=$(if [[ $AMF_IP_ADDRESS ]]; then echo $AMF_IP_ADDRESS; else echo $AMF_HOST;fi)
+         -  {{- if eq .Values.kubernetesType "Vanilla" }}
+            apt update && apt install iproute2 -y;
+            {{- end }}
+            CU_CP_IP_ADDRESS=$(getent hosts $CU_CP_HOST | awk '{print $1}');
+            CU_CP_IP_ADDRESS=$(if [[ $CU_CP_IP_ADDRESS ]]; then echo $CU_CP_IP_ADDRESS; else echo $CU_CP_HOST;fi)
+            CU_UP_IP_ADDRESS=$(ip -f inet addr show $E1_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
             N2_IP_ADDRESS=$(ip -f inet addr show $N2_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
+            N3_IP_ADDRESS=$(ip -f inet addr show $N3_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
             F1_IP_ADDRESS=$(ip -f inet addr show $F1_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
-            CUCP_IP_ADDRESS=$(ip -f inet addr show $E1_IF_NAME | grep -o "inet [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*" | grep -o "[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*");
             sed -e s/@N2_IP_ADDRESS@/$N2_IP_ADDRESS/g
+                -e s/@N3_IP_ADDRESS@/$N3_IP_ADDRESS/g
                 -e s/@F1_IP_ADDRESS@/$F1_IP_ADDRESS/g
-                -e s/@CUCP_IP_ADDRESS@/$CUCP_IP_ADDRESS/g
-                -e s/@AMF_IP_ADDRESS@/$AMF_IP_ADDRESS/g
-                /opt/oai-gnb/etc/cucp.conf | tee /tmp/cucp.conf;
-            /opt/oai-gnb/bin/nr-softmodem -O /tmp/cucp.conf $USE_ADDITIONAL_OPTIONS;
+                -e s/@E1_IP_ADDRESS@/$E1_IP_ADDRESS/g
+                -e s/@CU_CP_IP_ADDRESS@/$CU_CP_IP_ADDRESS/g
+                -e s/@CU_UP_IP_ADDRESS@/$CU_UP_IP_ADDRESS/g
+                /opt/oai-gnb/etc/cuup.conf | tee /tmp/cuup.conf;
+            exec /opt/oai-gnb/bin/nr-cuup -O /tmp/cuup.conf $USE_ADDITIONAL_OPTIONS;
         {{- else}}
         command:
           - /bin/sleep
@@ -98,18 +104,16 @@ spec:
             value: {{ .Values.config.timeZone }}
           - name: USE_ADDITIONAL_OPTIONS
             value: {{ .Values.config.useAdditionalOptions }}
-          - name: OAI_GDBSTACKS
-            value: "1"
-          - name: AMF_HOST
-            value: {{ .Values.config.amfhost }}
+          - name: CU_CP_HOST
+            value: {{ .Values.config.cuCpHost }}
           - name: N2_IF_NAME
             value: {{ .Values.config.n2IfName }}
-          - name: E1_IF_NAME
-            value: {{ .Values.config.e1IfName }}
           - name: N3_IF_NAME
             value: {{ .Values.config.n3IfName }}
           - name: F1_IF_NAME
             value: {{ .Values.config.f1IfName }}
+          - name: E1_IF_NAME
+            value: {{ .Values.config.e1IfName }}
       {{- if .Values.includeTcpDumpContainer }}
       - name: tcpdump
         image: "{{ .Values.tcpdumpimage.repository }}:{{ .Values.tcpdumpimage.version }}"
@@ -140,7 +144,7 @@ spec:
           - /bin/sleep
           - infinity
         {{- end}}
-      {{- end }}
+      {{- end}}
       volumes:
       - configMap:
           name: {{ .Chart.Name }}-configmap

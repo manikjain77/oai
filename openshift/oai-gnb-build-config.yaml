@@ -36,29 +36,31 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: "oai-gnb:develop"
+      name: "oai-gnb:2023.w51"
   runPolicy: Serial
   strategy:
     type: Docker
   source:
     dockerfile: |
-        FROM image-registry.openshift-image-registry.svc:5000/oai-tutorial/oai-ran-base:develop AS gnb-base
+        FROM image-registry.openshift-image-registry.svc:5000/engage5g/oai-ran-base:2023.w51 AS gnb-base
 
-        FROM image-registry.openshift-image-registry.svc:5000/oai-tutorial/oai-ran-build:develop AS gnb-build
+        FROM image-registry.openshift-image-registry.svc:5000/engage5g/oai-ran-build:2023.w51 AS gnb-build
 
         RUN python3 ./docker/scripts/generateTemplate.py ./docker/scripts/gnb_parameters.yaml && \
             cp /oai-ran/docker/scripts/gnb_entrypoint.sh /oai-ran/docker/scripts/entrypoint.sh
 
         #start from scratch for target executable
-        FROM registry.access.redhat.com/ubi8/ubi:latest as oai-gnb
+        FROM registry.access.redhat.com/ubi9/ubi:latest as oai-gnb
         ENV TZ=Europe/Paris
 
         RUN yum repolist --disablerepo=* && \
             yum update -y && \
-            yum install -y --enablerepo="ubi-8-codeready-builder" \
+            yum install -y --enablerepo="ubi-9-codeready-builder" \
                 procps-ng \
                 libXpm \
                 libX11 \
+                openssl \
+                openssl-devel \
                 atlas \
                 lksctp-tools \
                 tzdata \
@@ -94,25 +96,25 @@ spec:
             /usr/local/lib/
 
         COPY --from=gnb-base \
-            /lib64/libconfig.so.9 \
+            /lib64/libconfig.so.11 \
             /lib64/libforms.so.2 \
             /lib64/libblas.so.3 \
             /lib64/liblapack.so.3 \
             /lib64/liblapacke.so.3 \
-            /lib64/libboost_chrono.so.1.66.0 \
-            /lib64/libboost_date_time.so.1.66.0 \
-            /lib64/libboost_filesystem.so.1.66.0 \
-            /lib64/libboost_program_options.so.1.66.0 \
-            /lib64/libboost_serialization.so.1.66.0 \
-            /lib64/libboost_thread.so.1.66.0 \
-            /lib64/libboost_system.so.1.66.0 \
-            /lib64/libboost_unit_test_framework.so.1.66.0 \
-            /lib64/libboost_atomic.so.1.66.0 \
-            /lib64/libboost_timer.so.1.66.0 \
-            /lib64/libboost_regex.so.1.66.0 \
-            /lib64/libicudata.so.60 \
-            /lib64/libicui18n.so.60 \
-            /lib64/libicuuc.so.60 \
+            /lib64/libboost_chrono.so.1.75.0 \
+            /lib64/libboost_date_time.so.1.75.0 \
+            /lib64/libboost_filesystem.so.1.75.0 \
+            /lib64/libboost_program_options.so.1.75.0 \
+            /lib64/libboost_serialization.so.1.75.0 \
+            /lib64/libboost_thread.so.1.75.0 \
+            /lib64/libboost_system.so.1.75.0 \
+            /lib64/libboost_unit_test_framework.so.1.75.0 \
+            /lib64/libboost_atomic.so.1.75.0 \
+            /lib64/libboost_timer.so.1.75.0 \
+            /lib64/libboost_regex.so.1.75.0 \
+            /lib64/libicudata.so.67 \
+            /lib64/libicui18n.so.67 \
+            /lib64/libicuuc.so.67 \
             /lib64/
 
         # Now we are copying from builder-image the UHD files.

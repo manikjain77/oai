@@ -15,7 +15,7 @@ serviceAccount:
   annotations: {}
   # The name of the service account to use.
   # If not set and create is true, a name is generated using the fullname template
-  name: "oai-nr-ue-sa"
+  name: "oai-nr-ue2-sa"
 
 # good to use when pulling images from docker-hub mention 
 #imagePullSecrets: 
@@ -25,7 +25,7 @@ serviceAccount:
 multus:
   create: true
   #ipadd: "172.21.6.27"  # subnet should be able to reach the gNB
-  ipadd: "192.168.20.17"  # subnet should be able to reach the gNB
+  ipadd: "192.168.20.18"  # subnet should be able to reach the gNB
   netmask: "22"
   # if default route is not needed then leave the field empty
   #defaultGateway: "172.21.7.254"
@@ -34,11 +34,11 @@ multus:
 config:
   timeZone: "Europe/Paris"
   rfSimServer: "oai-ran"    # ip-address of rfsim or service name oai-gnb or oai-du
-  fullImsi: "001010000000100"       # make sure all the below entries are present in the subscriber database
+  fullImsi: "001010000000101"       # make sure all the below entries are present in the subscriber database
   fullKey: "fec86ba6eb707ed08905757b1bb44b8f" 
   opc: "C42449363BBAD02B66D16BC975D77CC1"
-  dnn: "oai"
-  sst: 1                     # configure according to gnb and amf, smf and upf 
+  dnn: "ims"
+  sst: 2                     # configure according to gnb and amf, smf and upf 
   sd: "16777215"
   usrp: "rfsim"            # allowed rfsim, b2xx, n3xx, x3xx
   useAdditionalOptions: "--sa --rfsim -r 106 --numerology 1 -C 3619200000 --nokrnmod --log_config.global_log_options level,nocolor,time"

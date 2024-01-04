@@ -1,16 +1,16 @@
-kubernetesType: Vanilla  #Vanilla for community kubernetes distribution else Openshift for Openshift
+kubernetesType: Openshift  #Vanilla for community kubernetes distribution else Openshift for Openshift
 
 ## In case of using these charts on Openshift then please use UBI images
 ## To know more about them follow this tutorial https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-fed/-/tree/master/openshift
 nfimage:   # image name either locally present or in a public/private repository
-  repository: docker.io/oaisoftwarealliance/oai-gnb           ## dockerhub oaisoftwarealliance/oai-gnb
-  version: 2023.w49 # image tag or develop
+  repository: oai-gnb           ## dockerhub oaisoftwarealliance/oai-gnb
+  version: 2023.w51 # image tag or develop
   # pullPolicy: IfNotPresent or Never or Always
   pullPolicy: IfNotPresent
 
 ## good to use when pulling images from docker-hub mention
-imagePullSecrets:
-  - name: "regcred"
+#imagePullSecrets:
+ # - name: "regcred"
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -30,8 +30,8 @@ multus:
   # if default gatway is left blank then it will be removed
   defaultGateway: ""
   f1Interface:
-    create: false
-    IPadd: "172.21.16.100"
+    create: true
+    IPadd: "192.168.20.13"
     Netmask: "22"
     # #name inside the pod is hardcoded right now
     # name: "f1"
@@ -61,13 +61,14 @@ config:
   duName: "oai-du-rfsim"
   mcc: "001"   # check the information with AMF, SMF, UPF
   mnc: "01"    # check the information with AMF, SMF, UPF
+  mncLength: "2" # check the information with AMF, SMF, UPF
   tac: "1"     # check the information with AMF
-  sst: "1"  #currently only 4 standard values are allowed 1,2,3,4
+  snssaiList: "({ sst = 1, sd = 0xffffff },{ sst = 2, sd = 0xffffff })"
   usrp: rfsim   #allowed values rfsim, b2xx, n3xx or x3xx
-  f1IfName: "eth0"   #if multus.f1Interface.create is true then use f1
-  cuHost: "oai-cu" ## Ip-address or hostname
-  f1cuPort: "2153"   #2153 if using same interface for f1 and n3 else standard port 2152 should be use if f1 and n3 interface are different
-  f1duPort: "2153"   #2153 if using same interface for f1 and n3 else standard port 2152 should be use if f1 and n3 interface are different
+  f1IfName: "f1"   #if multus.f1Interface.create is true then use f1
+  cuHost: "192.168.20.12" # "oai-cu" ## Ip-address or hostname
+  f1cuPort: "2152"   #2153 if using same interface for f1 and n3 else standard port 2152 should be use if f1 and n3 interface are different
+  f1duPort: "2152"   #2153 if using same interface for f1 and n3 else standard port 2152 should be use if f1 and n3 interface are different
 
 ## Debugging section
 podSecurityContext:
