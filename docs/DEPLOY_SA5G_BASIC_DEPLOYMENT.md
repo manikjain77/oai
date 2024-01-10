@@ -39,14 +39,7 @@ Please follow the tutorial step by step to create a stable working testbed. You 
 
 **TABLE OF CONTENTS**
 
-1.  [Basic Deployment Flavours](#1-basic-deployment-flavours)
-2.  [Pre-requisites](#2-pre-requisites)
-3.  [Network Function Container Images](#3-network-function-container-images)
-4.  [Configuring Host Machines](#4-configuring-host-machines)
-5.  [Configuring OAI 5G Core Network Functions](#5-configuring-the-oai-5g-core-network-functions)
-6.  [Deploying OAI 5G Core Network](#6-deploying-oai-5g-core-network)
-7.  [Notes](#7-notes)
-8.  [Report an Issue](#8-report-an-issue)
+[[_TOC_]]
 
 ## 1. Basic Deployment Flavours ##
 
@@ -303,12 +296,11 @@ Make sure you edit the IMSI, opc and key according to the settings of your user 
                             Add an automatic PCAP capture on docker networks to CAPTURE file
 
     example:
-            python3 core-network.py --type start-mini
             python3 core-network.py --type start-basic
             python3 core-network.py --type start-basic-vpp
-            python3 core-network.py --type stop-mini
             python3 core-network.py --type start-mini --scenario 2
-            python3 core-network.py --type start-basic --scenario 2
+            python3 core-network.py --type stop-mini --scenario 2
+            python3 core-network.py --type start-basic --scenario 1
     ```
 - **Optional** Before executing the script it is better to start capturing packets to see the message flow between smf <--> nrf <--> upf. The packets will be captured on **demo-oai** bridge which should be configured on the `docker-compose-host` machine.
 

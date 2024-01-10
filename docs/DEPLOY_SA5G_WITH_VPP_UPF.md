@@ -22,15 +22,7 @@ Note: In case readers are interested in deploying debuggers/developers core netw
 
 **TABLE OF CONTENTS**
 
-1.  Pre-requisites
-2.  [Building Container Images](./BUILD_IMAGES.md) or [Retrieving Container Images](./RETRIEVE_OFFICIAL_IMAGES.md)
-3.  Configuring Host Machines
-4.  Configuring OAI 5G Core Network Functions
-5.  [Deploying OAI 5G Core Network with VPP-UPF](#5-deploying-oai-5g-core-network)
-6.  [Stimuli with a RAN emulator](#6-stimuli-with-a-ran-emulator)
-7.  [Recover the logs](#7-recover-the-logs)
-8.  [Undeploy the Core Network](#8-undeploy-the-core-network)
-9.  [Notes](#9-notes)
+[[_TOC_]]
 
 * In this demo the image tags and commits which were used are listed below, follow [Building images](./BUILD_IMAGES.md) to build images with the tags below.
 
@@ -110,12 +102,11 @@ optional arguments:
                         Add an automatic PCAP capture on docker networks to CAPTURE file
 
 example:
-        python3 core-network.py --type start-mini
         python3 core-network.py --type start-basic
         python3 core-network.py --type start-basic-vpp
-        python3 core-network.py --type stop-mini
         python3 core-network.py --type start-mini --scenario 2
-        python3 core-network.py --type start-basic --scenario 2
+        python3 core-network.py --type stop-mini --scenario 2
+        python3 core-network.py --type start-basic --scenario 1
 
 ```
 

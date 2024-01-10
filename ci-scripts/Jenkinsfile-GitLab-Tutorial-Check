@@ -29,7 +29,7 @@ def upstreamEvent = false
 NRF=0
 AMF=1
 SMF=2
-SPGWU=3
+UPF=3
 AUSF=4
 UDM=5
 UDR=6
@@ -38,8 +38,8 @@ UPF_VPP=8
 PCF=9
 
 // Default tags / branches  --> could be passed on by upstream job
-imageNames = ["oai-nrf", "oai-amf", "oai-smf", "oai-spgwu-tiny", "oai-ausf", "oai-udm", "oai-udr", "oai-nssf", "oai-upf-vpp", "oai-pcf"]
-repoNames = ["oai-cn5g-nrf", "oai-cn5g-amf", "oai-cn5g-smf", "openair-spgwu-tiny", "oai-cn5g-ausf", "oai-cn5g-udm", "oai-cn5g-udr", "oai-cn5g-nssf", "oai-cn5g-upf-vpp", "oai-cn5g-pcf"]
+imageNames = ["oai-nrf", "oai-amf", "oai-smf", "oai-upf", "oai-ausf", "oai-udm", "oai-udr", "oai-nssf", "oai-upf-vpp", "oai-pcf"]
+repoNames = ["oai-cn5g-nrf", "oai-cn5g-amf", "oai-cn5g-smf", "oai-cn5g-upf", "oai-cn5g-ausf", "oai-cn5g-udm", "oai-cn5g-udr", "oai-cn5g-nssf", "oai-cn5g-upf-vpp", "oai-cn5g-pcf"]
 branchNames = ["", "", "", "", "", "", "", "", "", ""]
 imageTags = ["", "", "", "", "", "", "", "", "", ""]
 upstreamJobs = [false, false, false, false, false, false, false, false, false, false]
@@ -55,6 +55,7 @@ run_static_ue_ip = true
 run_vpp_upf = true
 run_slicing_w_nssf = true
 run_ulcl_pcf = true
+run_mongo_db = true
 
 //-------------------------------------------------------------------------------
 // Pipeline start
@@ -93,8 +94,8 @@ pipeline {
             if (cause.toString().contains('OAI-CN5G-SMF')) {
               upstreamJobs[SMF] = true
             }
-            if (cause.toString().contains('OAI-CN-SPGWU-TINY')) {
-              upstreamJobs[SPGWU] = true
+            if (cause.toString().contains('OAI-CN5G-UPF')) {
+              upstreamJobs[UPF] = true
             }
             if (cause.toString().contains('OAI-CN5G-AUSF')) {
               upstreamJobs[AUSF] = true
@@ -132,11 +133,12 @@ pipeline {
               if (upstreamEvent && upstreamJobs[NRF]) {
                 echo "Upstream Job passed NRF_TAG to use: ${imageTags[NRF]}"
                 echo "Upstream Job passed NRF_BRANCH to use: ${branchNames[NRF]}"
-                run_mini_gnbsim = true
+                run_mini_gnbsim = false
                 run_static_ue_ip = true
                 run_vpp_upf = true
                 run_slicing_w_nssf = true
                 run_ulcl_pcf = false
+                run_mongo_db = false
               }
             }
             if (ii == AMF) {
@@ -150,6 +152,7 @@ pipeline {
                 run_vpp_upf = true
                 run_slicing_w_nssf = true
                 run_ulcl_pcf = true
+                run_mongo_db = false
               }
             }
             if (ii == SMF) {
@@ -163,19 +166,21 @@ pipeline {
                 run_vpp_upf = true
                 run_slicing_w_nssf = true
                 run_ulcl_pcf = true
+                run_mongo_db = false
               }
             }
-            if (ii == SPGWU) {
-              branchNames[SPGWU] = params.SPGWU_BRANCH
-              imageTags[SPGWU] = params.SPGWU_TAG
-              if (upstreamEvent && upstreamJobs[SPGWU]) {
-                echo "Upstream Job passed SPGWU_TAG to use: ${imageTags[SPGWU]}"
-                echo "Upstream Job passed SPGWU_BRANCH to use: ${branchNames[SPGWU]}"
+            if (ii == UPF) {
+              branchNames[UPF] = params.UPF_BRANCH
+              imageTags[UPF] = params.UPF_TAG
+              if (upstreamEvent && upstreamJobs[UPF]) {
+                echo "Upstream Job passed UPF_TAG to use: ${imageTags[UPF]}"
+                echo "Upstream Job passed UPF_BRANCH to use: ${branchNames[UPF]}"
                 run_mini_gnbsim = true
                 run_static_ue_ip = true
                 run_vpp_upf = false
                 run_slicing_w_nssf = true
                 run_ulcl_pcf = false
+                run_mongo_db = false
               }
             }
             if (ii == AUSF) {
@@ -189,6 +194,7 @@ pipeline {
                 run_vpp_upf = true
                 run_slicing_w_nssf = true
                 run_ulcl_pcf = false
+                run_mongo_db = false
               }
             }
             if (ii == UDM) {
@@ -202,6 +208,7 @@ pipeline {
                 run_vpp_upf = true
                 run_slicing_w_nssf = true
                 run_ulcl_pcf = false
+                run_mongo_db = false
               }
             }
             if (ii == UDR) {
@@ -215,6 +222,7 @@ pipeline {
                 run_vpp_upf = true
                 run_slicing_w_nssf = true
                 run_ulcl_pcf = false
+                run_mongo_db = true
               }
             }
             if (ii == NSSF) {
@@ -228,6 +236,7 @@ pipeline {
                 run_vpp_upf = false
                 run_slicing_w_nssf = true
                 run_ulcl_pcf = false
+                run_mongo_db = false
               }
             }
             if (ii == UPF_VPP) {
@@ -241,6 +250,7 @@ pipeline {
                 run_vpp_upf = true
                 run_slicing_w_nssf = true
                 run_ulcl_pcf = true
+                run_mongo_db = false
               }
             }
             if (ii == PCF) {
@@ -254,6 +264,7 @@ pipeline {
                 run_vpp_upf = false
                 run_slicing_w_nssf = false
                 run_ulcl_pcf = true
+                run_mongo_db = false
               }
             }
           }
@@ -295,22 +306,21 @@ pipeline {
       when { expression {run_mini_gnbsim} }
       steps {
         script {
-          updateDockerCompose('docker-compose/docker-compose-mini-nrf.yaml', ranTag)
+          updateDockerCompose('docker-compose/docker-compose-mini-nonrf.yaml', ranTag)
           dir ('ci-scripts') {
             // Tee will make the command always pass
             // Please use the same log name as the folder used in the tutorial
             sh './checkTutorial.py --tutorial DEPLOY_SA5G_MINI_WITH_GNBSIM.md | tee ../archives/mini-gnbsim.log'
           }
-          // Checking if FAIL appears
           try {
-            sh 'grep -L FAIL archives/mini-gnbsim.log > /dev/null'
+            sh 'grep -l "is PASS" archives/mini-gnbsim.log > /dev/null'
+            echo "Minimalist gnbsim Tutorial PASSED"
+          } catch (Exception e) {
             currentBuild.result = 'FAILURE'
             echo "Minimalist gnbsim Tutorial FAILED"
-          } catch (Exception e) {
-            echo "Minimalist gnbsim Tutorial PASSED"
           }
-          archivesArtifacts('docker-compose/docker-compose-mini-nrf.yaml', 'mini-gnbsim')
-          cleanUpDockerCompose('docker-compose/docker-compose-mini-nrf.yaml')
+          archivesArtifacts('docker-compose/docker-compose-mini-nonrf.yaml', 'mini-gnbsim')
+          cleanUpDockerCompose('docker-compose/docker-compose-mini-nonrf.yaml')
         }
       }
     }
@@ -324,13 +334,12 @@ pipeline {
             // Please use the same log name as the folder used in the tutorial
             sh './checkTutorial.py --tutorial DEPLOY_SA5G_BASIC_STATIC_UE_IP.md | tee ../archives/static-ue-ip.log'
           }
-          // Checking if FAIL appears
           try {
-            sh 'grep -L FAIL archives/static-ue-ip.log > /dev/null'
+            sh 'grep -l "is PASS" archives/static-ue-ip.log > /dev/null'
+            echo "Static UE IP Tutorial PASSED"
+          } catch (Exception e) {
             currentBuild.result = 'FAILURE'
             echo "Static UE IP Tutorial FAILED"
-          } catch (Exception e) {
-            echo "Static UE IP Tutorial PASSED"
           }
           archivesArtifacts('docker-compose/docker-compose-basic-nrf.yaml', 'static-ue-ip')
           cleanUpDockerCompose('docker-compose/docker-compose-basic-nrf.yaml')
@@ -347,13 +356,12 @@ pipeline {
             // Please use the same log name as the folder used in the tutorial
             sh './checkTutorial.py --tutorial DEPLOY_SA5G_WITH_VPP_UPF.md | tee ../archives/vpp-upf-gnbsim.log'
           }
-          // Checking if FAIL appears
           try {
-            sh 'grep -L FAIL archives/vpp-upf-gnbsim.log > /dev/null'
+            sh 'grep -l "is PASS" archives/vpp-upf-gnbsim.log > /dev/null'
+            echo "UPF-VPP Tutorial PASSED"
+          } catch (Exception e) {
             currentBuild.result = 'FAILURE'
             echo "UPF-VPP Tutorial FAILED"
-          } catch (Exception e) {
-            echo "UPF-VPP Tutorial PASSED"
           }
           archivesArtifacts('docker-compose/docker-compose-basic-vpp-nrf.yaml', 'vpp-upf-gnbsim')
           cleanUpDockerCompose('docker-compose/docker-compose-basic-vpp-nrf.yaml')
@@ -370,13 +378,12 @@ pipeline {
             // Please use the same log name as the folder used in the tutorial
             sh './checkTutorial.py --tutorial DEPLOY_SA5G_SLICING.md | tee ../archives/slicing-with-nssf.log'
           }
-          // Checking if FAIL appears
           try {
-            sh 'grep -L FAIL archives/slicing-with-nssf.log > /dev/null'
+            sh 'grep -l "is PASS" archives/slicing-with-nssf.log > /dev/null'
+            echo "NSSF-Slicing Tutorial PASSED"
+          } catch (Exception e) {
             currentBuild.result = 'FAILURE'
             echo "NSSF-Slicing Tutorial FAILED"
-          } catch (Exception e) {
-            echo "NSSF-Slicing Tutorial PASSED"
           }
           archivesArtifacts('docker-compose/docker-compose-slicing-basic-nrf.yaml', 'slicing-with-nssf')
           cleanUpDockerCompose('docker-compose/docker-compose-slicing-basic-nrf.yaml')
@@ -393,16 +400,37 @@ pipeline {
             // Please use the same log name as the folder used in the tutorial
             sh './checkTutorial.py --tutorial DEPLOY_SA5G_ULCL.md | tee ../archives/ulcl-scenario.log'
           }
-          // Checking if FAIL appears
           try {
-            sh 'grep -L FAIL archives/ulcl-scenario.log > /dev/null'
+            sh 'grep -l "is PASS" archives/ulcl-scenario.log > /dev/null'
+            echo "UL-CL-Policies Tutorial PASSED"
+          } catch (Exception e) {
             currentBuild.result = 'FAILURE'
             echo "UL-CL-Policies Tutorial FAILED"
-          } catch (Exception e) {
-            echo "UL-CL-Policies Tutorial PASSED"
           }
           archivesArtifacts('docker-compose/docker-compose-basic-vpp-pcf-ulcl.yaml', 'ulcl-scenario')
           cleanUpDockerCompose('docker-compose/docker-compose-basic-vpp-pcf-ulcl.yaml')
+        }
+      }
+    }
+    stage ('Check MongoDB deployment Tutorial') {
+      when { expression {run_mongo_db} }
+      steps {
+        script {
+          updateDockerCompose('docker-compose/docker-compose-basic-nrf-mongodb.yaml', ranTag)
+          dir ('ci-scripts') {
+            // Tee will make the command always pass
+            // Please use the same log name as the folder used in the tutorial
+            sh './checkTutorial.py --tutorial DEPLOY_SA5G_BASIC_MONGODB.md | tee ../archives/mongodb-test.log'
+          }
+          try {
+            sh 'grep -l "is PASS" archives/mongodb-test.log > /dev/null'
+            echo "MongoDB Deploy Tutorial PASSED"
+          } catch (Exception e) {
+            currentBuild.result = 'FAILURE'
+            echo "MongoDB Deploy Tutorial FAILED"
+          }
+          archivesArtifacts('docker-compose/docker-compose-basic-nrf-mongodb.yaml', 'mongodb-test')
+          cleanUpDockerCompose('docker-compose/docker-compose-basic-nrf-mongodb.yaml')
         }
       }
     }
@@ -474,7 +502,7 @@ def checkImageInfo(imageName, origTag) {
 
 def updateDockerCompose(filename, lRanTag) {
   for (ii = 0; ii < imageNames.size(); ii++) {
-    sh 'sed -i -e "s@oaisoftwarealliance/' + imageNames[ii] + ':develop@' + imageNames[ii] + ':' + imageTags[ii] + '@" ' + filename
+    sh 'sed -i -e "s@oaisoftwarealliance/' + imageNames[ii] + ':v2.0.0@' + imageNames[ii] + ':' + imageTags[ii] + '@" ' + filename
   }
   sh 'sed -i -e "s@oaisoftwarealliance/trf-gen-cn5g:latest@trf-gen-cn5g:latest@" ' + filename
   // Using the develop variant of gnbsim
