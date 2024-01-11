@@ -120,9 +120,6 @@ spec:
         command: [ "/bin/bash", "-c" ]
         args:
          -  sed -e s/@AMF_IP_ADDRESS@/$AMF_IP_ADDRESS/g
-            {{- if eq .Values.config.usrp "b2xx"}}
-                -e s/@GNB_IP_ADDRESS@/$GNB_IP_ADDRESS/g
-            {{- end }}
             {{- if eq .Values.config.usrp "aw2s" }}
                 /opt/oai-gnb-aw2s/etc/gnb.conf | tee /tmp/gnb.conf;
             {{- else }}
@@ -151,12 +148,6 @@ spec:
             value: {{ .Values.config.useAdditionalOptions }}
           - name: AMF_IP_ADDRESS
             value: {{ .Values.config.amfIpAddress }}
-        {{- if eq .Values.config.usrp "b2xx" }}
-          - name: GNB_IP_ADDRESS
-            valueFrom: 
-              fieldRef:
-                fieldPath: status.podIP
-        {{- end}}
       {{- if .Values.includeTcpDumpContainer }}
       - name: tcpdump
         image: "{{ .Values.tcpdumpimage.repository }}:{{ .Values.tcpdumpimage.version }}"
