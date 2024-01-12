@@ -20,7 +20,7 @@ oai-nrf:
     version: v2.0.0                          ## The branch to be used to pull from dockerhub
     # pullPolicy: IfNotPresent or Never or Always
     pullPolicy: IfNotPresent
-  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  includeTcpDumpContainer: @TCPDUMP_CONTAINER@ #only for taking pcaps inside network function pod
   imagePullSecrets:
     - name: "regcred"
   config:
@@ -36,7 +36,7 @@ oai-nssf:
     pullPolicy: IfNotPresent
   imagePullSecrets:
     - name: "regcred"
-  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  includeTcpDumpContainer: @TCPDUMP_CONTAINER@ #only for taking pcaps inside network function pod
   config:
     logLevel: "debug"   #allowed info/error/debug
   nodeSelector: {}
@@ -48,7 +48,7 @@ oai-udr:
     version: v2.0.0                                    ## The branch to be used to pull from dockerhub
     # pullPolicy: IfNotPresent or Never or Always
     pullPolicy: IfNotPresent
-  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  includeTcpDumpContainer: @TCPDUMP_CONTAINER@ #only for taking pcaps inside network function pod
   imagePullSecrets:
     - name: "regcred"
   config:
@@ -62,7 +62,7 @@ oai-udm:
     version: v2.0.0                                    ## The branch to be used to pull from dockerhub
     # pullPolicy: IfNotPresent or Never or Always
     pullPolicy: IfNotPresent
-  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  includeTcpDumpContainer: @TCPDUMP_CONTAINER@ #only for taking pcaps inside network function pod
   imagePullSecrets:
     - name: "regcred"
   config:
@@ -76,9 +76,16 @@ oai-ausf:
     version: v2.0.0                                    ## The branch to be used to pull from dockerhub
     # pullPolicy: IfNotPresent or Never or Always
     pullPolicy: IfNotPresent
-  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  includeTcpDumpContainer: @TCPDUMP_CONTAINER@ #only for taking pcaps inside network function pod
+  start:
+    tcpdump: @START_TCPDUMP@
+  includeTcpDumpContainer: @TCPDUMP_CONTAINER@ #only for taking pcaps inside network function pod
   imagePullSecrets:
     - name: "regcred"
+  securityContext:
+    privileged: @PRIVILEGED@
+  persistent:
+    sharedvolume: @SHAREDVOLUME@
   config:
     logLevel: "debug"   #allowed info/error/debug
   nodeSelector: {}
@@ -90,24 +97,33 @@ oai-amf:
     version: v2.0.0                                    ## The branch to be used to pull from dockerhub
     # pullPolicy: IfNotPresent or Never or Always
     pullPolicy: IfNotPresent
-  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  start:
+    tcpdump: @START_TCPDUMP@  
+  includeTcpDumpContainer: @TCPDUMP_CONTAINER@ #only for taking pcaps inside network function pod
   imagePullSecrets:
     - name: "regcred"
+  securityContext:
+    privileged: @PRIVILEGED@
+  persistent:
+    sharedvolume: @SHAREDVOLUME@
   multus:
     ## If you don't want to add a default route in your pod then replace this field with ""
-    defaultGateway: ""
+    defaultGateway: "@CN_DEFAULT_GW@"
     n2Interface:
-      create: false
-      Ipadd: "172.21.6.94"
-      Netmask: "22"
+      create: @MULTUS_AMF_N2@
+      Ipadd: "@IP_AMF_N2@"
+      Netmask: "@NETMASK_AMF_N2@"
+      ## If you do not need a specific mac address leave the field empty
+      Mac: "@MAC_AMF_N2@"
       # #name inside the pod is hardcoded right now
       # name: "n2"
       ## If you do not have a gateway leave the field empty
-      Gateway:
+      Gateway: "@GW_AMF_N2@"
       ## If you do not want to add any routes in your pod then leave this field empty
-      routes: [{'dst': '10.8.0.0/24','gw': '172.21.7.254'}]
-      hostInterface: "bond0" # Interface of the host machine on which this pod will be scheduled
+      routes: "@ROUTES_AMF_N2@"
+      hostInterface: "@IF_NAME_AMF_N2@" # Interface of the host machine on which this pod will be scheduled
   nodeSelector: {}
+  nodeName: @NODE_AMF@
 oai-upf:
   enabled: true
   kubernetesType: Vanilla #Openshift/Vanilla Vanilla for Upstream Kubernetes
@@ -116,51 +132,64 @@ oai-upf:
     version: v2.0.0                                    ## The branch to be used to pull from dockerhub
     # pullPolicy: IfNotPresent or Never or Always
     pullPolicy: IfNotPresent
-  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  start:
+    tcpdump: @START_TCPDUMP@  
+  includeTcpDumpContainer: @TCPDUMP_CONTAINER@ #only for taking pcaps inside network function pod
   imagePullSecrets:
     - name: "regcred"
+  securityContext:
+    privileged: @PRIVILEGED@
+  persistent:
+    sharedvolume: @SHAREDVOLUME@
   # create an extra interface for N3 incase the gNB is outside the cluster network or there is a need to have dedicated interface for N3
   ## Change these ip-addresses according to your environment
   ## N4, N6 are optional only if you want that UPF uses different subnets for different 3gpp interfaces. 
   multus:
     ## If you don't want to add a default route in your pod then replace this field with ""
-    defaultGateway: ""
+    defaultGateway: "@CN_DEFAULT_GW@"
     n3Interface:
-      create: false
-      Ipadd: "172.21.8.95"
-      Netmask: "22"
+      create: @MULTUS_UPF_N3@
+      Ipadd: "@IP_UPF_N3@"
+      Netmask: "@NETMASK_UPF_N3@"
+      ## If you do not need a specific mac address leave the field empty
+      Mac: "@MAC_UPF_N3@"
       # #name inside the pod is hardcoded right now
       # name: "n3"
       ## If you do not have a gateway leave the field empty
-      Gateway: ""
+      Gateway: "@GW_UPF_N3@"
       ## If you don't want to add a default route in your pod then replace this field with ""
-      routes: [{'dst': '10.8.0.0/24','gw': '172.21.11.254'}, {'dst': '10.9.0.0/24','gw': '172.21.11.254'}]
-      hostInterface: "bond0"
+      routes: "@ROUTES_UPF_N3@"
+      hostInterface: "@IF_NAME_UPF_N3@"
     ## For n4 it is better to re-use eth0 interface inside the pod (primary CNI of Kubernetes)
     n4Interface:
-      create: false
-      Ipadd: "192.168.24.2"
-      Netmask: "24"
+      create: @MULTUS_UPF_N4@
+      Ipadd: "@IP_UPF_N4@"
+      Netmask: "@NETMASK_UPF_N4@"
+      ## If you do not need a specific mac address leave the field empty
+      Mac: "@MAC_UPF_N4@"
       # #name inside the pod is hardcoded right now
       # name: "n4"
       ## If you do not have a gateway leave the field empty
-      Gateway: ""
+      Gateway: "@GW_UPF_N4@"
       ## If you do not want to add any routes in your pod then leave this field empty
-      routes: ""
-      hostInterface: "bond0"
+      routes: "@ROUTES_UPF_N4@"
+      hostInterface: "@IF_NAME_UPF_N4@"
     n6Interface:
-      create: false
-      Ipadd: "192.168.22.2"
+      create: @MULTUS_UPF_N6@
+      Ipadd: "@IP_UPF_N6@"
       # #name inside the pod is hardcoded right now
       # name: "n6"
-      Netmask: "24"
+      Netmask: "@NETMASK_UPF_N6@"
+      ## If you do not need a specific mac address leave the field empty
+      Mac: "@MAC_UPF_N6@"
       ## If you do not have a gateway leave the field empty
-      Gateway: ""
+      Gateway: "@GW_UPF_N6@"
       ## If you do not want to add any routes in your pod then leave this field empty
-      routes: ""
-      hostInterface: "bond0"
+      routes: "@ROUTES_UPF_N6@"
+      hostInterface: "@IF_NAME_UPF_N6@"
   #NOTE: If the interface you selected for n6If is wrong then traffic will not be routed towards internet
   nodeSelector: {}
+  nodeName: @NODE_UPF@
 # oai-traffic-server:
 #  enabled: false
 #  weight: 6
@@ -170,7 +199,7 @@ oai-upf:
 #    version: latest
 #    #pullPolicy: IfNotPresent or Never or Always
 #    pullPolicy: IfNotPresent
-#  #Without multus traffic server won't be able to forward packets to spgwu if can't use server then add an extra container in spgwu with iperf3 or install iperf3 package in tcpdump container
+#  #Without multus traffic server won't be able to forward packets to upf if can't use server then add an extra container in upf with iperf3 or install iperf3 package in tcpdump container
 #  multus:
 #    create: true
 #    IPadd: "172.21.6.99"
@@ -189,20 +218,29 @@ oai-smf:
     version: v2.0.0                         ## The branch to be used to pull from dockerhub
     # pullPolicy: IfNotPresent or Never or Always
     pullPolicy: IfNotPresent
-  includeTcpDumpContainer: false #only for taking pcaps inside network function pod
+  start:
+    tcpdump: @START_TCPDUMP@  
+  includeTcpDumpContainer: @TCPDUMP_CONTAINER@ #only for taking pcaps inside network function pod
   multus:
     ## If you don't want to add a default route in your pod then replace this field with ""
-    defaultGateway: ""
+    defaultGateway: "@CN_DEFAULT_GW@"
     n4Interface:
-      create: false
-      Ipadd: "192.168.24.3"
-      Netmask: "24"
+      create: @MULTUS_SMF_N4@
+      Ipadd: "@IP_SMF_N4@"
+      Netmask: "@NETMASK_SMF_N4@"
+      ## If you do not need a specific mac address leave the field empty
+      Mac: "@MAC_SMF_N4@"
       ## If you do not have a gateway leave the field empty
-      Gateway: ""
+      Gateway: "@GW_SMF_N4@"
       ## If you do not want to add any routes in your pod then leave this field empty
-      #routes: [{'dst': '10.8.0.0/24','gw': '172.21.7.254'}, {'dst': '10.9.0.0/24','gw': '172.21.7.254'}]
-      hostInterface: "bond0"
+      routes: "@ROUTES_SMF_N4@"
+      hostInterface: "@IF_NAME_SMF_N4@"
   nodeSelector: {}
   imagePullSecrets:
     - name: "regcred"
+  securityContext:
+    privileged: @PRIVILEGED@
+  persistent:
+    sharedvolume: @SHAREDVOLUME@
   nodeSelector: {}
+  nodeName: @NODE_SMF@
