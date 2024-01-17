@@ -154,6 +154,7 @@ smf:
       port: 8805
       config:
         enable_usage_reporting: no
+        n3_local_ipv4: "192.168.70.134"
         # follows UPFInfo from 3GPP TS 29.510, currently only these values from interfaceUpfInfoList are supported
       upf_info:
         interfaceUpfInfoList:
