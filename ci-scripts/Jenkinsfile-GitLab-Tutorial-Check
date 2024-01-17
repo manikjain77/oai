@@ -51,11 +51,11 @@ upstreamTagToUse = params.upstreamTagToUse
 
 // means to shorten the pipeline
 run_mini_gnbsim = true
-run_static_ue_ip = true
-run_vpp_upf = true
-run_slicing_w_nssf = true
-run_ulcl_pcf = true
-run_mongo_db = true
+run_static_ue_ip = false
+run_vpp_upf = false
+run_slicing_w_nssf = false
+run_ulcl_pcf = false
+run_mongo_db = false
 
 //-------------------------------------------------------------------------------
 // Pipeline start
