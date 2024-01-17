@@ -150,7 +150,7 @@ smf:
     use_local_subscription_info: yes # Use infos from local_subscription_info or from UDM
     use_local_pcc_rules: yes # Use infos from local_pcc_rules or from PCF
   upfs:
-    - host: oai-upf
+    - host: "192.168.70.134"
       port: 8805
       config:
         enable_usage_reporting: no
