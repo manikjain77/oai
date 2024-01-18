@@ -306,6 +306,7 @@ pipeline {
       when { expression {run_mini_gnbsim} }
       steps {
         script {
+         for (kk = 0; kk < 8; kk++) {
           updateDockerCompose('docker-compose/docker-compose-mini-nonrf.yaml', ranTag)
           dir ('ci-scripts') {
             // Tee will make the command always pass
@@ -321,6 +322,8 @@ pipeline {
           }
           archivesArtifacts('docker-compose/docker-compose-mini-nonrf.yaml', 'mini-gnbsim')
           cleanUpDockerCompose('docker-compose/docker-compose-mini-nonrf.yaml')
+          sh "mv archives/mini-gnbsim  archives/mini-gnbsim-run-${kk}"
+         }
         }
       }
     }
