@@ -55,6 +55,10 @@ dependencies:
   name: oai-upf
   repository: "file://../oai-upf"
   version: v2.0.0
+- condition: oai-upf-local.enabled
+  name: oai-upf-local
+  repository: "file://../oai-upf-local"
+  version: v2.0.0
 #- condition: oai-traffic-server.enabled
 #  name: oai-traffic-server
 #  repository: "file://../oai-traffic-server"

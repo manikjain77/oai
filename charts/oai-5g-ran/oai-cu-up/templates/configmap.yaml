@@ -25,7 +25,7 @@ data:
           plmn_list = ({ mcc = {{ .Values.config.mcc }}; 
                          mnc = {{ .Values.config.mnc }}; 
                          mnc_length ={{ .Values.config.mncLength }}; 
-                         snssaiList = ({ sst = {{ .Values.config.nssaiSst }}, sd = {{ .Values.config.nssaiSd }} }) 
+                         snssaiList = {{ .Values.config.snssaiList }} 
                       });
 
           tr_s_preference = "f1";

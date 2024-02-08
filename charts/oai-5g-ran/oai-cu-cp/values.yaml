@@ -4,7 +4,7 @@ kubernetesType: Openshift  #Vanilla for community kubernetes distribution else O
 ## To know more about them follow this tutorial https://gitlab.eurecom.fr/oai/cn5g/oai-cn5g-fed/-/tree/master/openshift
 nfimage:   # image name either locally present or in a public/private repository
   repository: oai-gnb
-  version: 2023.w51 # image tag or develop
+  version: 2024.w03 # image tag or develop
   # pullPolicy: IfNotPresent or Never or Always
   pullPolicy: IfNotPresent
 
@@ -69,7 +69,7 @@ config:
   mnc: "01"    # check the information with AMF, SMF, UPF
   mncLength: "2" # check the information with AMF, SMF, UPF/SPGWU
   tac: "1"     # check the information with AMF
-  snssaiList: "({ sst = 1, sd = 0xffffff },{ sst = 2, sd = 0xffffff })"
+  snssaiList: "({ sst = 1, sd = 0xffffff },{ sst = 2, sd = 0xffffff },{ sst = 2, sd = 0x000001 })"
   amfhost: "172.21.6.185"  # amf ip-address or service-name oai-amf-svc or 172.21.6.94
   n2IfName: "n2"    # if multus.n2Interface.create is true then use n2
   n3IfName: "eth0"   #if multus.n3Interface.create is true then use n3 or you can only use 1 interface n2 or eth0 
@@ -88,7 +88,7 @@ podSecurityContext:
 
 start:
   gnbcucp: true
-  tcpdump: false
+  tcpdump: true
 
 includeTcpDumpContainer: true #If true it will add a tcpdump container inside network function pod for debugging
 

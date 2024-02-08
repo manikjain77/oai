@@ -36,15 +36,15 @@ spec:
   output:
     to:
       kind: ImageStreamTag
-      name: "oai-cu-up:2023.w51"
+      name: "oai-cu-up:2024.w03"
   runPolicy: Serial
   strategy:
     type: Docker
   source:
     dockerfile: |
-        FROM image-registry.openshift-image-registry.svc:5000/engage5g/oai-ran-base:2023.w51 AS gnb-base
+        FROM image-registry.openshift-image-registry.svc:5000/engage5g/oai-ran-base:2024.w03 AS gnb-base
 
-        FROM image-registry.openshift-image-registry.svc:5000/engage5g/oai-ran-build:2023.w51 AS gnb-build
+        FROM image-registry.openshift-image-registry.svc:5000/engage5g/oai-ran-build:2024.w03 AS gnb-build
 
         RUN cp /oai-ran/docker/scripts/gnb_entrypoint.sh /oai-ran/docker/scripts/entrypoint.sh
 
@@ -61,7 +61,8 @@ spec:
                 tzdata \
                 atlas \
                 net-tools \
-                iputils && \
+                iputils \
+                rsync && \
             echo "/usr/local/lib" > /etc/ld.so.conf.d/local-lib.conf && \
             echo "/usr/local/lib64" >> /etc/ld.so.conf.d/local-lib.conf
 
@@ -72,7 +73,6 @@ spec:
             ./
 
         COPY --from=gnb-build \
-            /oai-ran/cmake_targets/ran_build/build/librfsimulator.so \
             /oai-ran/cmake_targets/ran_build/build/libparams_libconfig.so \
             /oai-ran/cmake_targets/ran_build/build/libtelnetsrv.so \
             /usr/local/lib/
@@ -80,13 +80,13 @@ spec:
         COPY --from=gnb-base \
             /lib64/libconfig.so.11 \
             /lib64/libblas.so.3 \
+            /lib64/libcblas.so.3 \
             /lib64/liblapack.so.3 \
             /lib64/liblapacke.so.3 \
             /lib64/
 
         RUN ldconfig && \
             echo "ldd on nr-cuup" && ldd /opt/oai-gnb/bin/nr-cuup && \
-            echo "ldd on librfsimulator" && ldd /usr/local/lib/librfsimulator.so && \
             echo "ldd on libparams_libconfig" && ldd /usr/local/lib/libparams_libconfig.so && \
             echo "ldd on libtelnetsrv" && ldd /usr/local/lib/libtelnetsrv.so
 

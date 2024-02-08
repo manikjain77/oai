@@ -17,6 +17,9 @@ snssais:
     sst: 1
   - &embb_slice2
     sst: 2
+  - &embb_slice2_1
+    sst: 2
+    sd: 000001
 
 ############## SBI Interfaces
 ### Each NF takes its local SBI interfaces and remote interfaces from here, unless it gets them using NRF discovery mechanisms
@@ -41,6 +44,23 @@ nfs:
       port: 8805
   upf:
     host: oai-upf
+    sbi:
+      port: 80
+      api_version: v1
+      interface_name: eth0
+    n3:
+      interface_name: n3
+      port: 2152
+    n4:
+      interface_name: eth0
+      port: 8805
+    n6:
+      interface_name: eth0
+    n9:
+      interface_name: eth0
+      port: 2152
+  upf-local:
+    host: oai-upf-local
     sbi:
       port: 80
       api_version: v1
@@ -117,6 +137,7 @@ amf:
       nssai:
         - *embb_slice1
         - *embb_slice2
+        - *embb_slice2_1
   supported_integrity_algorithms:
     - "NIA1"
     - "NIA2"
@@ -135,6 +156,9 @@ smf:
     - host: oai-upf
       config:
         enable_usage_reporting: no
+    - host: oai-upf-local
+      config:
+        enable_usage_reporting: no        
   ue_dns:
     primary_ipv4: "10.3.2.200"
     primary_ipv6: "2001:4860:4860::8888"
@@ -153,20 +177,28 @@ smf:
       - sNssai: *embb_slice2
         dnnSmfInfoList:
           - dnn: "ims"
+      - sNssai: *embb_slice2_1
+        dnnSmfInfoList:
+          - dnn: "ims"
   local_subscription_infos:
     - single_nssai: *embb_slice1
       dnn: "oai"
       qos_profile:
         5qi: 5
         session_ambr_ul: "200Mbps"
-        session_ambr_dl: "400Mbps"
+        session_ambr_dl: "400Mbps"       
     - single_nssai: *embb_slice2
       dnn: "ims"
       qos_profile:
         5qi: 2
         session_ambr_ul: "100Mbps"
         session_ambr_dl: "200Mbps"
-
+    - single_nssai: *embb_slice2_1
+      dnn: "ims"
+      qos_profile:
+        5qi: 2
+        session_ambr_ul: "100Mbps"
+        session_ambr_dl: "200Mbps"
 upf:
   support_features:
     enable_bpf_datapath: no    # If "on": BPF is used as datapath else simpleswitch is used, DEFAULT= off
@@ -178,6 +210,17 @@ upf:
       dnnUpfInfoList:
         - dnn: oai
     - sNssai: *embb_slice2
+      dnnUpfInfoList:
+        - dnn: ims
+
+upf-local:
+  support_features:
+    enable_bpf_datapath: no    # If "on": BPF is used as datapath else simpleswitch is used, DEFAULT= off
+    enable_snat: yes           # If "on": Source natting is done for UE, DEFAULT= off
+  remote_n6_gw: "127.0.0.1"      # Dummy host since simple-switch does not use N6 GW
+  upf_info:
+    sNssaiUpfInfoList:
+    - sNssai: *embb_slice2_1
       dnnUpfInfoList:
         - dnn: ims
 
