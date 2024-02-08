@@ -69,7 +69,7 @@ config:
   mnc: "01"    # check the information with AMF, SMF, UPF
   mncLength: "2" # check the information with AMF, SMF, UPF/SPGWU
   tac: "1"     # check the information with AMF
-  snssaiList: "({ sst = 1, sd = 0xffffff },{ sst = 2, sd = 0xffffff },{ sst = 2, sd = 0x000001 })"
+  snssaiList: "({ sst = 1, sd = 0xffffff },{ sst = 2, sd = 0xffffff })"
   amfhost: "172.21.6.185"  # amf ip-address or service-name oai-amf-svc or 172.21.6.94
   n2IfName: "n2"    # if multus.n2Interface.create is true then use n2
   n3IfName: "eth0"   #if multus.n3Interface.create is true then use n3 or you can only use 1 interface n2 or eth0 

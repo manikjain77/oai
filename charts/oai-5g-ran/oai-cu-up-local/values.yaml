@@ -67,8 +67,8 @@ config:
   mcc: "001"   # check the information with AMF, SMF, UPF
   mnc: "01"    # check the information with AMF, SMF, UPF
   mncLength: "2" # check the information with AMF, SMF, UPF
-  tac: "1"     # check the information with AMF
-  snssaiList: "({ sst = 2, sd = 0x000001 })"
+  tac: "2"     # check the information with AMF
+  snssaiList: "({ sst = 2, sd = 0xffffff })"
   cuCpHost: "192.168.18.12" #"oai-cu" E1 IP address of CUCP
   n2IfName: "eth0"    # if multus.n2Interface.create is true then use n2
   n3IfName: "n3"   #if multus.n3Interface.create is true then use n3 or you can only use 1 interface n2 or eth0 
