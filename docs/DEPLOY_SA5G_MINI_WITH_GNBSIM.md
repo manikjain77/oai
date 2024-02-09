@@ -39,10 +39,10 @@ Note: In case readers are interested in deploying debuggers/developers core netw
 
 | CNF Name    | Branch Name             | tag      | Ubuntu 22.04 | RHEL8          |
 | ----------- |:----------------------- | ---------| ------------ | ---------------|
-| AMF         | `master`                | `v2.0.0` | X            | X              |
-| SMF         | `master`                | `v2.0.0` | X            | X              |
-| NRF         | `master`                | `v2.0.0` | X            | X              |
-| UPF         | `master`                | `v2.0.0` | X            | X              |
+| AMF         | `master`                | `v2.0.1` | X            | X              |
+| SMF         | `master`                | `v2.0.1` | X            | X              |
+| NRF         | `master`                | `v2.0.1` | X            | X              |
+| UPF         | `master`                | `v2.0.1` | X            | X              |
 
 <br/>
 
@@ -450,6 +450,7 @@ docker-compose-host $: docker-compose -f docker-compose-mini-nonrf.yaml stop -t 
 docker-compose-host $: docker logs oai-amf > /tmp/oai/mini-gnbsim/amf.log 2>&1
 docker-compose-host $: docker logs oai-smf > /tmp/oai/mini-gnbsim/smf.log 2>&1
 docker-compose-host $: docker logs oai-upf > /tmp/oai/mini-gnbsim/upf.log 2>&1
+docker-compose-host $: docker logs oai-ext-dn > /tmp/oai/mini-gnbsim/ext-dn.log 2>&1
 docker-compose-host $: docker logs gnbsim > /tmp/oai/mini-gnbsim/gnbsim.log 2>&1
 docker-compose-host $: docker logs gnbsim2 > /tmp/oai/mini-gnbsim/gnbsim2.log 2>&1
 docker-compose-host $: docker logs gnbsim3 > /tmp/oai/mini-gnbsim/gnbsim3.log 2>&1
