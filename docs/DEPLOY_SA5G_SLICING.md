@@ -34,15 +34,15 @@ You can also retrieve the images from `docker-hub`. See [Retrieving images](./RE
 
 | CNF Name    | Branch Name   | Tag used at time of writing   | Ubuntu 22.04 | RHEL8         |
 | ----------- |:------------- | ----------------------------- | ------------ | --------------|
-| NSSF        | `master`      | `v2.0.0`                      | X            | X              |
-| AMF         | `master`      | `v2.0.0`                      | X            | X              |
-| AUSF        | `master`      | `v2.0.0`                      | X            | X              |
-| NRF         | `master`      | `v2.0.0`                      | X            | X              |
-| SMF         | `master`      | `v2.0.0`                      | X            | X              |
-| UDR         | `master`      | `v2.0.0`                      | X            | X              |
-| UDM         | `master`      | `v2.0.0`                      | X            | X              |
-| UPF         | `master`      | `v2.0.0`                      | X            | X              |
-| UPF-VPP     | `master`      | `v2.0.0`                      | X            | X              |
+| NSSF        | `master`      | `v2.0.1`                      | X            | X              |
+| AMF         | `master`      | `v2.0.1`                      | X            | X              |
+| AUSF        | `master`      | `v2.0.1`                      | X            | X              |
+| NRF         | `master`      | `v2.0.1`                      | X            | X              |
+| SMF         | `master`      | `v2.0.1`                      | X            | X              |
+| UDR         | `master`      | `v2.0.1`                      | X            | X              |
+| UDM         | `master`      | `v2.0.1`                      | X            | X              |
+| UPF         | `master`      | `v2.0.1`                      | X            | X              |
+| UPF-VPP     | `master`      | `v2.0.1`                      | X            | X              |
 
 <br/>
 
@@ -220,9 +220,10 @@ Creating rfsim5g-oai-nr-ue1 ... done
 ```
 Wait a bit (5 to 10 seconds).
 <!---
-For CI purposes please ignore this line
+For CI purposes please ignore these lines
 ``` shell
 docker-compose-host $: ../ci-scripts/checkContainerStatus.py --container_name rfsim5g-oai-nr-ue1 --timeout 30
+docker-compose-host $: ../ci-scripts/checkUePduSession.py --container_name rfsim5g-oai-nr-ue1
 ```
 -->
 Deploy ran simulator for slice 3
@@ -277,7 +278,7 @@ In this section we perform traffic test between oai-ext-dn node and UEs <br/>
 
 ``` shell
 docker-compose-host $: docker logs gnbsim 2>&1 | tail -10
-docker-compose-host $: docker logs oai-amf 2>&1 | tail -20
+docker-compose-host $: docker logs oai-amf 2>&1 | grep --color=never info | tail -20
 docker-compose-host $: docker exec oai-ext-dn ping -c 4 12.1.1.2
 PING 12.1.1.2 (12.1.1.2) 56(84) bytes of data.
 64 bytes from 12.1.1.2: icmp_seq=2 ttl=63 time=0.346 ms
@@ -299,16 +300,16 @@ PING 12.2.1.2 (12.2.1.2) 56(84) bytes of data.
 4 packets transmitted, 4 received, 0% packet loss, time 3039ms
 rtt min/avg/max/mdev = 0.390/0.635/1.004/0.232 ms
 
-docker-compose-host $: docker exec oai-ext-dn ping -c 4 12.1.1.130
-PING 12.1.1.130 (12.1.1.130) 56(84) bytes of data.
-64 bytes from 12.1.1.130: icmp_seq=1 ttl=63 time=40.0 ms
-64 bytes from 12.1.1.130: icmp_seq=2 ttl=63 time=39.5 ms
-64 bytes from 12.1.1.130: icmp_seq=3 ttl=63 time=11.2 ms
-64 bytes from 12.1.1.130: icmp_seq=4 ttl=63 time=11.2 ms
+docker-compose-host $: docker exec rfsim5g-oai-nr-ue1 ping -I oaitun_ue1 -c 4 192.168.70.145
+PING 192.168.70.145 (192.168.70.145) from 12.1.1.130 oaitun_ue1: 56(84) bytes of data.
+64 bytes from 192.168.70.145: icmp_seq=1 ttl=63 time=9.74 ms
+64 bytes from 192.168.70.145: icmp_seq=2 ttl=63 time=9.17 ms
+64 bytes from 192.168.70.145: icmp_seq=3 ttl=63 time=8.07 ms
+64 bytes from 192.168.70.145: icmp_seq=4 ttl=63 time=5.94 ms
 
---- 12.1.1.130 ping statistics ---
-4 packets transmitted, 4 received, 0% packet loss, time 3003ms
-rtt min/avg/max/mdev = 11.206/25.511/40.071/14.292 ms
+--- 192.168.70.145 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 3004ms
+rtt min/avg/max/mdev = 5.936/8.226/9.739/1.452 ms
 ```
 
 ## 9. Analyzing Scenario Results
@@ -335,6 +336,7 @@ docker-compose-host $: docker logs oai-smf-slice3 > /tmp/oai/slicing-with-nssf/s
 docker-compose-host $: docker logs oai-upf-slice1 > /tmp/oai/slicing-with-nssf/upf-slice1.log 2>&1
 docker-compose-host $: docker logs oai-upf-slice2 > /tmp/oai/slicing-with-nssf/upf-slice2.log 2>&1
 docker-compose-host $: docker logs vpp-upf-slice3 > /tmp/oai/slicing-with-nssf/vpp-upf-slice3.log 2>&1
+docker-compose-host $: docker logs oai-ext-dn > /tmp/oai/slicing-with-nssf/ext-dn.log 2>&1
 docker-compose-host $: docker logs gnbsim > /tmp/oai/slicing-with-nssf/gnbsim.log 2>&1
 docker-compose-host $: docker logs rfsim5g-oai-gnb > /tmp/oai/slicing-with-nssf/rfsim5g-oai-gnb.log 2>&1
 docker-compose-host $: docker logs rfsim5g-oai-nr-ue1 > /tmp/oai/slicing-with-nssf/rfsim5g-oai-nr-ue1.log 2>&1
