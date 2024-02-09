@@ -101,7 +101,7 @@ data:
         mac_log_level    = "info";
         rlc_log_level    = "info";
         pdcp_log_level   = "info";
-        rrc_log_level    = "info";
+        rrc_log_level    = "debug";
         e1ap_log_level   = "debug";
         f1ap_log_level   = "debug";
         ngap_log_level   = "debug";
