@@ -125,6 +125,10 @@ spec:
           initialDelaySeconds: 2
           periodSeconds: 3
         {{- end}}
+        lifecycle:
+          postStart:
+            exec:
+              command: ["/sbin/sysctl", "-w", "net.ipv4.ip_forward=1"]
         {{- if .Values.livenessProbe}}
         livenessProbe:
           exec:
