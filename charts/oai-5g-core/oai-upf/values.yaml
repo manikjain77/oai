@@ -33,7 +33,7 @@ exposedPorts:
 ## Change these ip-addresses according to your environment
 ## N4, N6 are optional only if you want that UPF uses different subnets for different 3gpp interfaces. 
 
-  multus:
+multus:
     ## If you don't want to add a default route in your pod then replace this field with ""
     defaultGateway: "@CN_DEFAULT_GW@"
     n3Interface:
