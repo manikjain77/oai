@@ -37,7 +37,7 @@ exposedPorts:
     ## If you don't want to add a default route in your pod then replace this field with ""
     defaultGateway: "@CN_DEFAULT_GW@"
     n3Interface:
-      create: @MULTUS_UPF_N3@
+      create: #@MULTUS_UPF_N3@
       Ipadd: "@IP_UPF_N3@"
       Netmask: "@NETMASK_UPF_N3@"
       ## If you do not need a specific mac address leave the field empty
@@ -47,11 +47,11 @@ exposedPorts:
       ## If you do not have a gateway leave the field empty
       Gateway: "@GW_UPF_N3@"
       ## If you don't want to add a default route in your pod then replace this field with ""
-      routes: @ROUTES_UPF_N3@
+      routes: #@ROUTES_UPF_N3@
       hostInterface: "@IF_NAME_UPF_N3@"
     ## For n4 it is better to re-use eth0 interface inside the pod (primary CNI of Kubernetes)
     n4Interface:
-      create: @MULTUS_UPF_N4@
+      create: #@MULTUS_UPF_N4@
       Ipadd: "@IP_UPF_N4@"
       Netmask: "@NETMASK_UPF_N4@"
       ## If you do not need a specific mac address leave the field empty
@@ -61,10 +61,10 @@ exposedPorts:
       ## If you do not have a gateway leave the field empty
       Gateway: "@GW_UPF_N4@"
       ## If you do not want to add any routes in your pod then leave this field empty
-      routes: @ROUTES_UPF_N4@
+      routes: #@ROUTES_UPF_N4@
       hostInterface: "@IF_NAME_UPF_N4@"
     n6Interface:
-      create: @MULTUS_UPF_N6@
+      create: #@MULTUS_UPF_N6@
       Ipadd: "@IP_UPF_N6@"
       # #name inside the pod is hardcoded right now
       # name: "n6"
@@ -74,15 +74,15 @@ exposedPorts:
       ## If you do not have a gateway leave the field empty
       Gateway: "@GW_UPF_N6@"
       ## If you do not want to add any routes in your pod then leave this field empty
-      routes: @ROUTES_UPF_N6@
+      routes: #@ROUTES_UPF_N6@
       hostInterface: "@IF_NAME_UPF_N6@"
 
 ## Debugging section
 start:
   spgwu: true #If false the network function container will run in sleep mode for manually testing
-  tcpdump: @START_TCPDUMP@
+  tcpdump: #@START_TCPDUMP@
 
-includeTcpDumpContainer: @TCPDUMP_CONTAINER@ #If true it will add a tcpdump container inside network function pod for debugging
+includeTcpDumpContainer: #@TCPDUMP_CONTAINER@ #If true it will add a tcpdump container inside network function pod for debugging
 
 ## For openshift you can use rhel8/support-tools:8.7-13
 tcpdumpimage:
@@ -92,11 +92,11 @@ tcpdumpimage:
   pullPolicy: IfNotPresent
 
 securityContext:
-  privileged: @PRIVILEGED@
+  privileged: #@PRIVILEGED@
 
 #To store PCAP of NF in a sharedVolume so it can be easily fetched (PVC is created with NRF charts so make sure in NRF it is true)
 persistent:
-  sharedvolume: @SHAREDVOLUME@
+  sharedvolume: #@SHAREDVOLUME@
 
 ## NF is the network function and tcpdump is the tcpdump container. 
 ## To know more about request and limit it is better to understand that how Kubernetes QoS works. 
@@ -129,4 +129,4 @@ terminationGracePeriodSeconds: 5
 
 nodeSelector: {}
 
-nodeName: @NODE_UPF@
+nodeName: #@NODE_UPF@
