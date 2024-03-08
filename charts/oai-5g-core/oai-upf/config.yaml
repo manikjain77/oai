@@ -33,13 +33,13 @@ snssais:
 ### Each NF takes its local SBI interfaces and remote interfaces from here, unless it gets them using NRF discovery mechanisms
 nfs:
   smf:
-    host: oai-smf
+    host: @NFS_SMF_HOST@ # oai-smf
     sbi:
       port: 80
     n4:
       port: 8805
   upf:
-    host: oai-upf
+    host: @NFS_UPF_HOST@ # oai-upf
     sbi:
       port: 80
       api_version: v1
@@ -56,7 +56,7 @@ nfs:
       interface_name: eth0
       port: 2152
   nrf:
-    host: oai-nrf
+    host: @NFS_NRF_HOST@ # oai-nrf
     sbi:
       port: 80
       api_version: v1
